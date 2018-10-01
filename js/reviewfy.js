@@ -69,6 +69,8 @@ $(document).ready(function() {
     
     // Global because I specify in the clic-time the kind of library: ACM, IEEE, etc
     newDoc = {};
+    // to filtering
+    filterList = [];
 
     warning_alert = function(text){
         BootstrapDialog.show({
@@ -349,6 +351,7 @@ $(document).ready(function() {
                     newPub[k] = h;                    
                 }        
             }
+            newPub["meta:tags"] = 0; // etiqueta por las que se filtra
             //newDoc["content"].push(newPub);
             //find suitable position
             var pp = 0;
@@ -475,7 +478,144 @@ $(document).ready(function() {
     
     
     //-- showing content
-    tag2color = {"exclude":"danger", "include":"success", "maybe":"info"};
+    tag2color = {'-':"", "exclude":"danger", "include":"success", "maybe":"info"};
+    id2color = {"0":"", "1":"info", "2":"danger", "3":"success"};
+    //id2color = ["danger", "success", "info"];
+    
+    activeDoc = -1;
+    $(document).on('click', '.btnSearch', function () {
+        var idd = $(this).attr("idd");
+        activeDoc = idd;
+        showContent();
+    });
+    
+    
+    getPub = function(idd,idc){
+        var doc = D[idd];
+        for (i in doc["content"]){
+            pub = doc["content"][i];
+            if (pub["id"] == idc){
+                return pub;
+            }
+        }
+        return undefined;
+    }
+    
+    esta_en = function(A,a){
+        console.log("------");
+        console.log(A);
+        console.log(a);
+        for (k in A){
+            if (a == A[k]){
+                return true;
+                console.log("esta:OK");
+            }
+        }
+        console.log("esta:NO");
+        return false;
+    }
+    
+    
+    showContent = function(){
+        var idd = activeDoc;
+        $("#content_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col" style="width: 50px;">#</th>'+
+                '<th scope="col" style="width: 150px;">ID</th>'+
+                '<th scope="col" style="width: 50px;">Year</th>'+
+                '<th scope="col">Title</th>'+
+                '<th scope="col">Authors</th>'+
+                '<th scope="col">Tags</th>'+
+                '<th scope="col"></th> '+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+        
+        $("#content_table").html(html_table);
+        
+        var doc = D[idd];
+        $("#spanDocName").html("Selected: "+doc["name"]);
+        console.log(doc);
+        console.log(doc["content"]);
+        var M = Map[doc["type"]];
+        console.log(":::::::>");
+        console.log(doc["type"]);
+        var pos = 1;
+
+        var idfilter = -1;
+        var Lfilter = [];
+        if (filterList.length != 0){
+            idfilter = invListTags[filterList[0]];
+            
+            for (j in filterList){
+                Lfilter.push(invListTags[filterList[j]]);
+            }
+            console.log("kkkkkkkkkkkkkkkkkk")
+            console.log(filterList);
+            console.log(Lfilter);
+        }
+        
+        for (i in doc["content"]){
+            var pub = doc["content"][i];
+            console.log("--->");
+            console.log(pub);
+            
+            // filtering
+            if (filterList.length != 0){
+                console.log("hhhhhhhhhhhhhhhh::::");
+                console.log(esta_en(Lfilter,pub["meta:tags"]));
+                if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
+            }
+            
+            // selecting tag
+            var sel=["","","",""];
+            sel[pub["meta:tags"]] = 'selected="selected"';
+            
+            // contructing table
+            $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
+                        '<td>'+pos+'</td>'+
+                        '<td>'+pub["id"]+'</td>'+
+                        '<td>'+pub["year"]+'</td>'+
+                        '<td>'+pub["title"]+'</td>'+
+                        '<td>'+pub["author"]+'</td>'+
+                        //'<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
+                        '<td>'+
+                            '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
+                                    '<option '+sel[0]+' value="0">-</option>'+
+                                    '<option '+sel[1]+'value="1">include</option>'+
+                                    '<option '+sel[2]+'value="2">exclude</option>'+
+                                    '<option '+sel[3]+'value="3">maybe</option>'+
+                            '</select>'+
+                        '</td>'+
+                        '<td>-</td>'+
+                    '</tr>');
+            pos = pos +1 ;
+        }
+        
+        $(document).on('change', '.trSelectChange', function () {
+            var idc = $(this).attr("idc");
+            
+            for (i in ListTaxonomy){
+                var l = ListTaxonomy[i];
+                $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
+            }
+            
+            console.log($(this).val());
+            console.log(id2color[$(this).val()]);
+            $("#tr_cont_"+idc).addClass(id2color[$(this).val()]);
+            
+            //updating tag in memory
+            var idd = $(this).attr("idd");
+            var pub = getPub(idd,idc);
+            pub["meta:tags"] = $(this).val();
+        });
+    }
+    
+     /*
     $(document).on('click', '.btnSearch', function () {
         $("#content_table").empty();
         
@@ -497,7 +637,7 @@ $(document).ready(function() {
         $("#content_table").html(html_table);
         var idd = $(this).attr("idd");
         var doc = D[idd];
-        $("#spanDocName").html("TETETETETE");
+        $("#spanDocName").html("Selected: "+doc["name"]);
         console.log(doc);
         console.log(doc["content"]);
         var M = Map[doc["type"]];
@@ -516,85 +656,59 @@ $(document).ready(function() {
                         '<td>'+pub["year"]+'</td>'+
                         '<td>'+pub["title"]+'</td>'+
                         '<td>'+pub["author"]+'</td>'+
-                        '<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
+                        //'<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
+                        '<td>'+
+                            '<select class="trSelectChange" idd="'+pub["id"]+'">'+
+                                    '<option value="0">-</option>'+
+                                    '<option value="1">include</option>'+
+                                    '<option value="2">exclude</option>'+
+                                    '<option value="3">maybe</option>'+
+                            '</select>'+
+                        '</td>'+
                         '<td>-</td>'+
                     '</tr>');
             pos = pos +1 ;
            
         }
         
-        
-        
-        /*
-        for (i in doc["content"]){
-            var pub = doc["content"][i];
-            console.log("--->");
-            console.log(pub);
-            $("#content_table").append('<tr>'+
-                        '<td>'+pos+'</td>'+
-                        '<td>'+pub["id"]+'</td>'+
-                        '<td>'+pub["year"]+'</td>'+
-                        '<td>'+pub["title"]+'</td>'+
-                        '<td>'+pub["author"]+'</td>'+
-                        '<td>-</td>'+
-                    '</tr>');
-            pos = pos +1 ;
-           
-        }*/
-        
-        $(".taxonomyPubs").select2({
-            createSearchChoice:function(term, data) { 
-                if ($(data).filter(function() { 
-                    return this.text.localeCompare(term)===0; 
-                }).length===0) 
-                {return {id:term, text:term};} 
-            },
-            multiple: true,
-            //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
-            data:ListTaxonomy
-        });
-        
-
-        $(document).on('change', '.taxonomyPubs', function () {
+        $(document).on('change', '.trSelectChange', function () {
             var idd = $(this).attr("idd");
-            console.log("uuuuuuuuuuu");
-            console.log(idd);
             
             for (i in ListTaxonomy){
                 var l = ListTaxonomy[i];
-                console.log("jjjjjjjjjjj");
-                console.log(l);
                 $("#tr_cont_"+idd).removeClass(tag2color[l["text"]]);
             }
             
-            
-            var listInputTaxonomy = $("#taxonomy"+idd).select2('data');
-            for (i in listInputTaxonomy){
-                var l = listInputTaxonomy[i];
-                console.log("iiiiiiiiiii");
-                console.log(l);                   
-                $("#tr_cont_"+idd).addClass(tag2color[l["text"]]);
-            }
-            
-            
-             $("#tr_cont_"+idd).addClass("henry");
+            console.log($(this).val());
+            console.log(id2color[$(this).val()]);
+            $("#tr_cont_"+idd).addClass(id2color[$(this).val()]);
         });
       
     
     });
+    */
     
     
+    // Filtering Tags---
     
-    // Tags---
+    //id2color = {0:'include'}
     
-    ListTaxonomy = [        
-        {id: 0, text: 'include'},
-		{id: 1, text: 'exclude'},
-		{id: 2, text: 'maybe'},
+    ListTaxonomy = [
+        {id: 0, text: '-'},
+        {id: 1, text: 'include'},
+		{id: 2, text: 'exclude'},
+		{id: 3, text: 'maybe'},
     ];
+    
+    invListTags = {
+        '-': 0,
+        'include':1,
+        'exclude':2,
+        'maybe':3
+    }
 
-   /*
-   $(".taxonomyPubs").select2({
+   
+   $("#tagFilter").select2({
     createSearchChoice:function(term, data) { 
         if ($(data).filter(function() { 
             return this.text.localeCompare(term)===0; 
@@ -604,7 +718,19 @@ $(document).ready(function() {
     multiple: true,
     //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
     data:ListTaxonomy
-    });*/
+    });
+   
+   
+    $("#btnFilterTag").click(function(){
+        var listTags = $("#tagFilter").select2('data');
+        filterList = [];
+        for (i in listTags){
+            l = listTags[i];
+            filterList.push(l["text"]);
+        }
+        console.log(filterList);
+        showContent();
+    });
 });
 
 
