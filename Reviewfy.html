@@ -39,7 +39,7 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right tabs" style="margin-top: 11px!important;">
-                <li id="docli" class="tab-link current" data-tab="doc">Document Annotation</li>
+                <li id="docli" class="tab-link current" data-tab="doc">Uploading</li>
                 <li class="tab-link" data-tab="help">Help</li>
                 <!--<li class="nav-item"><a href="#help" data-toggle="tab">Help</a></li>-->
             </ul>
@@ -152,6 +152,35 @@
                 </table>
             </div>
         </div>
+        <div class="col-lg-12"><br><span id="spanDocName"></span></div>
+        <div class="col-lg-12">
+            <div>
+                <table id="content_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 50px;">#</th>
+                        <th scope="col" style="width: 150px;">ID</th>
+                        <th scope="col" style="width: 50px;">Year</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Authors</th>
+                        <th scope="col"></th> 
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Documentos</td>
+                        <td id="sry_doc">0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                   
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
         
     </div>
    
@@ -176,6 +205,7 @@
    
    
    
+   
    <!----- Help ---->
    <div id="help" class="tab-content">
    
@@ -185,88 +215,10 @@
 
 
    </div>
-
+    
     <br><br><br>
     
-    <div id="myModal" tabindex="-1" class="modal fade">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-           <div class="modal-header">
-              <h4 id="myModal-title" class="modal-title">Add Annotation</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-              </button>
-              <div id="myModal-title-desc"></div>
-           </div>
-           <div id="myModal-body" class="modal-body form-group">
-               <!-- https://itsolutionstuff.com/post/simple-add-remove-input-fields-dynamically-using-jquery-with-bootstrapexample.html -->
-               <label for="modalSelectURI" class="col-form-label">List of URIs:</label>
-               <div class="input-group control-group after-add-more">
-                   <input id="modalSelectURI" mentiontype="- Select Type -" number="1" type="text" name="addmore[]" class="form-control taIdentRefRoot" placeholder="Link of the selected entity mention">
-                   <!-- taIdentRef-->
-                   <div class="input-group-btn"> 
-                        <button id="btn_type_modalSelectURI" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                - Select Type -
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','- Select Type -');">- Select Type -</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','PERSON');"><i class="glyphicon glyphicon-user"></i> PERSON</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','ORG');"><i class="glyphicon glyphicon-briefcase"></i> ORG</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','PLACE');"><i class="glyphicon glyphicon-map-marker"></i> PLACE</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','MISC');"><i class="glyphicon glyphicon-tag"></i> MISC</a>
-                        </div>
-                   
-                   
-                        <button class="btn btn-success add-more" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
-                   </div>
-               </div>
-               <!--
-               <div class="copy hide">
-                  <div class="control-group input-group" style="margin-top:10px">
-                      <input type="text" name="addmore[]" class="form-control" placeholder="Enter Name Here">
-                      <div class="input-group-btn"> 
-                          <button class="btn btn-danger remove" type="button"><i class="glyphicon glyphicon-remove"></i> Remove</button>
-                      </div>
-                  </div>
-               </div> 
-               
-               
-               <label for="modalSelectURI" class="col-form-label">URI:</label>
-                   <input type="text" class="form-control espacioAbajo" id="modalSelectURI_" placeholder="Link of the selected entity mention"> -->
-               <br>
-               <label for="taxonomyAnn" class="col-form-label">Taxonomy:</label>
-               <input type="text" style="width:100%!important;" id="taxonomyAnn" class="taxonomyInputClass"/>
-
-               <!--
-               <label for="modalSelectTaxonomy" class="col-form-label">Taxonomy:</label>
-               <select id="modalSelectTaxonomy" class="form-control">
-				   <option>Mustard</option>
-				   <option>Ketchup</option>
-				   <option>Relish</option>
-			   </select>-->
-
-           </div>
-           <div class="modal-footer">
-              <p style="text-align: left;"><input type="checkbox" id="cbox_overlaps" value="first_checkbox"> Allow Overlaps</p>
-              <!--<button id="btn_annotate_this_doc" type="button" class="btn btn-warning">Annotate int this doc</button>
-              <button id="btn_annotate_all_doc" type="button" class="btn btn-warning">Annotate in all docs</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button id="btn_annotate" type="button" class="btn btn-primary">Annotate!</button>-->
-              <div class='bothside'>
-                  <div style='float: left;'>
-                      <button id="btn_annotate_this_doc" type="button" class="btn btn-warning">Annotate int this doc</button>
-                      <button id="btn_annotate_all_doc" type="button" class="btn btn-warning">Annotate in all docs</button>
-                  </div>
-                  <div style='float: right;'>
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button id="btn_annotate" type="button" class="btn btn-primary">Annotate!</button>
-                  </div>
-              </div>
-           </div>
-         </div>
-       </div>
-    </div>
+    
 
 
    <div id="modalUpload" tabindex="-1" class="modal fade">
@@ -321,73 +273,29 @@
 
     
     
-    
-    <div id="modalModifyAnnotation" tabindex="-1" class="modal fade">
+    <!-- Modal details by doc -->
+    <div id="modalDetails" tabindex="-1" class="modal fade">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
            <div class="modal-header">
-              <h4 id="modalModifyAnnotation-title" class="modal-title">Modify Annotation</h4>
+              <h4 class="modal-title"><b>Details</b></h4>
+              <br> Here we show first the number of repetitions in the set of publications selected. On the left the cardinality (e.g., 1 means not repetions, 2 means doplications, etc.), while the number on the right represent the number of ocurrences (e.g., 7 indicate that there are seven publications with the corresponding cardinality). In this way, the pair (3,7) represent that there are 7 papers with 3 ocurrences. There is not overlapping among the quantities, if one paper is counted in an specific cardinality, won't be counted in any of the other ones. 
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                <span aria-hidden="true">&times;</span>
               </button>
-              <div id="modalModifyAnnotation-title-desc"></div>
            </div>
-           <div id="modalModifyAnnotation-body" class="modal-body form-group">
-               <label for="modalModifyAnnotationLabel" class="col-form-label">Surface Form:</label>
-                   <input type="text" class="form-control espacioAbajo" id="modalModifyAnnotationLabel" placeholder="New surface form">
-               <!--
-               <label for="modalModifyAnnotationSelectURI" class="col-form-label">URI:</label>
-                   <input type="text" class="form-control espacioAbajo" id="modalModifyAnnotationSelectURI" placeholder="Link of the selected entity mention"> -->
-               
-               <label for="modalModifyAnnotationSelectURI" class="col-form-label">List of URIs:</label>
-               <div class="input-group control-group after-add-more-modification">
-                   <!--<input id="modalModifyAnnotationSelectURI" number="1" type="text" name="addmoremod[]" class="form-control" placeholder="Link of the selected entity mention">
-                   <div class="input-group-btn"> 
-                       <button class="btn btn-success add-more-modification" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
-                   </div>
-                   -->
-                   
-                   <!-- -->
-                   <input id="modalModifyAnnotationSelectURI" mentiontype="- Select Type -" number="1" type="text" name="addmore[]" class="form-control taIdentRefRoot" placeholder="Link of the selected entity mention">
-                   <!-- -->
-                   <div class="input-group-btn"> 
-                        <button id="btn_type_modalModifyAnnotationSelectURI" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                - Select Type -
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','- Select Type -');">- Select Type -</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','PERSON');"><i class="glyphicon glyphicon-user"></i> PERSON</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','ORG');"><i class="glyphicon glyphicon-briefcase"></i> ORG</a>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','PLACE');"><i class="glyphicon glyphicon-map-marker"></i> PLACE</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','MISC');"><i class="glyphicon glyphicon-tag"></i> MISC</a>
-                        </div>
-                   
-                   
-                        <button class="btn btn-success add-more-modification" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
-                   </div>
-                   <!-- -->
-                   
-               </div>
-               <br>
-               <label for="taxonomyMod" class="col-form-label">Taxonomy:</label>
-               <input type="text" style="width:100%!important;" id="taxonomyMod" class="taxonomyInputClass"/>
-               <!--<label for="modalModifyAnnotationSelectTaxonomy" class="col-form-label">Taxonomy:</label>
-               <select id="modalModifyAnnotationSelectTaxonomy" class="form-control">
-                   <option>Mustard</option>
-                   <option>Ketchup</option>
-                   <option>Relish</option>
-               </select>-->
-
+           <div id="modalDetails-body" class="modal-body form-group">           
+               <table id="details_table" class="table table-striped"></table>
+           </div>
+           <br>
+           <div class="modal-header">
+           Secondly, we show similar information relating to the type of publication. For example, the pair (article,4) say that there are four articles.
+           </div>
+           <div id="modalDetails-body1" class="modal-body form-group">           
+               <table id="type_table" class="table table-striped"></table>
            </div>
            <div class="modal-footer">
-              <!--<button type="button" class="btn btn-primary">Annotate!</button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              https://getbootstrap.com/docs/4.0/components/modal/ -->
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button id="btn_delete_ann" ide="-1" type="button" class="btn btn-secondary" data-dismiss="modal">Delete</button>
-              <!--<a id="a_link" type="button" href="http://www.google.com/" target="_blank">  <button type="button" class="btn btn-secondary">Link</button></a>-->
-              <button id="btn_modify" ide="-1" surfaceform="text" type="button" data-dismiss="modal" class="btn btn-primary">Modify</button>
            </div>
          </div>
        </div>

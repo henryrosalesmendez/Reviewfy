@@ -1,7 +1,7 @@
 $(document).ready(function() {
     
     D = {}; // Datos de los documentos, ejemplo:
-    //D =  {1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "dataUploading":{"repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}}, "length":50, "description":"ABABAB", "content":["id"]} };
+    //D =  {1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}, "length":50, "description":"ABABAB", "content":["id"]} };
     // In order tounify the input script, first words of the columns
     Head = {"ACM":'"type","id","author"'};
     //alowing publications
@@ -141,7 +141,9 @@ $(document).ready(function() {
        var pos = 1;
        for (i in D){
            var d = D[i];
-           $("#doc_table").append('<tr><th scope="row">'+pos.toString()+'</th><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>('+d["fileName"]+')'+d["description"]+'</td><td>-</td><td>-</td></tr>');
+           var actions = '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
+           actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-open-file"></i></button>';
+           $("#doc_table").append('<tr id="tr'+i+'"><th scope="row">'+pos.toString()+'</th><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>('+d["fileName"]+')'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
@@ -149,6 +151,7 @@ $(document).ready(function() {
 
 //e.target.
     //see https://www.html5rocks.com/en/tutorials/file/dndfiles/
+    tempFileInput = "";
 	function readBlob(opt_startByte, opt_stopByte) {
 		var files = document.getElementById('input-b9').files;
 		if (!files.length) {
@@ -204,6 +207,7 @@ $(document).ready(function() {
                 label: 'Ok',
                 action: function(dialog) {
                     var fileName = $("#filename_input").val();
+                    tempFileInput = fileName;
                     if (fileName) {
                         var htmlText = $('#nifdoc').html();
                         htmlText = replaceAll(htmlText,"&nbsp;"," ");
@@ -238,6 +242,20 @@ $(document).ready(function() {
 	}
 
     });
+    
+    // count the ocurrences of the values and return the dictionary 
+    invert_counting = function(O){
+        var invO = {}
+        for (k in O){
+            if (O[k] in invO){
+                invO[O[k]] = invO[O[k]] + 1;
+            }
+            else{
+                invO[O[k]] = 1;
+            }
+        }
+        return invO;
+    }
 
 
 
@@ -275,6 +293,7 @@ $(document).ready(function() {
         var Rt = {}; // counting by type
         var L = text.split("\n");
         var first = true;
+        var cant = 0;
         for (i in L){
             var l = L[i];
             if (trim_1(l) == ""){continue;}
@@ -319,7 +338,6 @@ $(document).ready(function() {
             //
             console.log("entro");
             var newPub = {};  
-            var cant = 0;
             for (j in H){
                 h = trim_1(H[j]);
                 console.log("----");
@@ -330,11 +348,38 @@ $(document).ready(function() {
                 if (k != -1){
                     newPub[k] = h;                    
                 }        
-                cant = cant + 1;
             }
-            newPub["length"] = cant;
-            newDoc["content"].push(newPub);
+            //newDoc["content"].push(newPub);
+            //find suitable position
+            var pp = 0;
+            var _id = parseInt(newPub["id"]);
+            for (t in newDoc["content"]){
+                n = newDoc["content"][t];
+                if(parseInt(n["id"])>_id){
+                    break;
+                }
+                pp = pp + 1;
+            }
+            
+            //insert in position
+            newDoc["content"].splice(pp, 0, newPub);
+            
+            cant = cant + 1;
+            
         }
+        //var invRr = invert_counting(Rr);
+        //var invRt = invert_counting(Rt);
+        //newDoc["repited"] = jQuery.extend({}, invRr); // cloning
+        //newDoc["typePubl"] = jQuery.extend({}, invRt);
+        console.log(invert_counting(Rr));
+        console.log(Rt);
+        
+        newDoc["fileName"] = tempFileInput;
+        newDoc["timeUpload"]= new Date().toLocaleTimeString();
+        newDoc["dateUpload"]= new Date().toLocaleDateString();
+        newDoc["repited"] = invert_counting(Rr);
+        newDoc["typePubl"] = jQuery.extend({}, Rt);
+        newDoc["length"] = cant;
         D[Object.keys(D).length+1] = newDoc;
 
        //Update table
@@ -355,17 +400,211 @@ $(document).ready(function() {
         //uploadUrl: '/site/file-upload-single'
     });
 
-    var upload = function() {
-		var photo = document.getElementById("fileNif");
-		return false;
-	};
+
     
     $("#btn_upload").click(function(){
-        newDoc = {"fileName":"-", "type":"ACM", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "dataUploading":{"repited":{}, "typePubl":{}}, "length":0, "description":"-", "content":[]};
+        newDoc = {"fileName":"-", "type":"ACM", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         $("#modalUpload").modal("show");
     });
     
 
+    // ---- modal details
+    $(document).on('click', '.btnDetails', function () {
+        $("#details_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col">Cardinality</th>'+
+                '<th scope="col">Quantity</th>'+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+   
+        $("#details_table").html(html_table);
+        var idd = $(this).attr("idd");
+        var doc = D[idd];
+        console.log(doc);
+        console.log(doc["repited"]);
+        var pos = 1;
+        for (i in doc["repited"]){
+            var h = doc["repited"][i];
+            console.log("-->");
+            console.log(i);
+            console.log("-->");
+            console.log(h);
+            $("#details_table").append('<tr><td class="text-primary">'+i+'</td><td class="text-primary">'+h+'</td></tr>');
+            pos = pos + 1;
+        }
+        
+        
+        //---------------------
+        $("#type_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col">Type</th>'+
+                '<th scope="col">Quantity</th>'+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+   
+        $("#type_table").html(html_table);
+        var idd = $(this).attr("idd");
+        var doc = D[idd];
+        console.log(doc);
+        console.log(doc["typePubl"]);
+        var pos = 1;
+        for (i in doc["typePubl"]){
+            var h = doc["typePubl"][i];
+            console.log("-->");
+            console.log(i);
+            console.log("-->");
+            console.log(h);
+            $("#type_table").append('<tr><td class="text-success">'+i+'</td><td class="text-success">'+h+'</td></tr>');
+            pos = pos + 1;
+        }
+        
+        $('#modalDetails').modal("show");
+    
+    });
+    
+    
+    
+    //-- showing content
+    tag2color = {"exclude":"danger", "include":"success", "maybe":"info"};
+    $(document).on('click', '.btnSearch', function () {
+        $("#content_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col" style="width: 50px;">#</th>'+
+                '<th scope="col" style="width: 150px;">ID</th>'+
+                '<th scope="col" style="width: 50px;">Year</th>'+
+                '<th scope="col">Title</th>'+
+                '<th scope="col">Authors</th>'+
+                '<th scope="col">Tags</th>'+
+                '<th scope="col"></th> '+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+        
+        $("#content_table").html(html_table);
+        var idd = $(this).attr("idd");
+        var doc = D[idd];
+        $("#spanDocName").html("TETETETETE");
+        console.log(doc);
+        console.log(doc["content"]);
+        var M = Map[doc["type"]];
+        console.log(":::::::>");
+        console.log(doc["type"]);
+        var pos = 1;
+
+
+        for (i in doc["content"]){
+            var pub = doc["content"][i];
+            console.log("--->");
+            console.log(pub);
+            $("#content_table").append('<tr class="" id="tr_cont_'+pub["id"]+'">'+
+                        '<td>'+pos+'</td>'+
+                        '<td>'+pub["id"]+'</td>'+
+                        '<td>'+pub["year"]+'</td>'+
+                        '<td>'+pub["title"]+'</td>'+
+                        '<td>'+pub["author"]+'</td>'+
+                        '<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
+                        '<td>-</td>'+
+                    '</tr>');
+            pos = pos +1 ;
+           
+        }
+        
+        
+        
+        /*
+        for (i in doc["content"]){
+            var pub = doc["content"][i];
+            console.log("--->");
+            console.log(pub);
+            $("#content_table").append('<tr>'+
+                        '<td>'+pos+'</td>'+
+                        '<td>'+pub["id"]+'</td>'+
+                        '<td>'+pub["year"]+'</td>'+
+                        '<td>'+pub["title"]+'</td>'+
+                        '<td>'+pub["author"]+'</td>'+
+                        '<td>-</td>'+
+                    '</tr>');
+            pos = pos +1 ;
+           
+        }*/
+        
+        $(".taxonomyPubs").select2({
+            createSearchChoice:function(term, data) { 
+                if ($(data).filter(function() { 
+                    return this.text.localeCompare(term)===0; 
+                }).length===0) 
+                {return {id:term, text:term};} 
+            },
+            multiple: true,
+            //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
+            data:ListTaxonomy
+        });
+        
+
+        $(document).on('change', '.taxonomyPubs', function () {
+            var idd = $(this).attr("idd");
+            console.log("uuuuuuuuuuu");
+            console.log(idd);
+            
+            for (i in ListTaxonomy){
+                var l = ListTaxonomy[i];
+                console.log("jjjjjjjjjjj");
+                console.log(l);
+                $("#tr_cont_"+idd).removeClass(tag2color[l["text"]]);
+            }
+            
+            
+            var listInputTaxonomy = $("#taxonomy"+idd).select2('data');
+            for (i in listInputTaxonomy){
+                var l = listInputTaxonomy[i];
+                console.log("iiiiiiiiiii");
+                console.log(l);                   
+                $("#tr_cont_"+idd).addClass(tag2color[l["text"]]);
+            }
+            
+            
+             $("#tr_cont_"+idd).addClass("henry");
+        });
+      
+    
+    });
+    
+    
+    
+    // Tags---
+    
+    ListTaxonomy = [        
+        {id: 0, text: 'include'},
+		{id: 1, text: 'exclude'},
+		{id: 2, text: 'maybe'},
+    ];
+
+   /*
+   $(".taxonomyPubs").select2({
+    createSearchChoice:function(term, data) { 
+        if ($(data).filter(function() { 
+            return this.text.localeCompare(term)===0; 
+        }).length===0) 
+        {return {id:term, text:term};} 
+    },
+    multiple: true,
+    //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
+    data:ListTaxonomy
+    });*/
 });
 
 
