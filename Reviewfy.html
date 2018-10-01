@@ -1,0 +1,400 @@
+
+<head>
+
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/boostrap.4.3.chunck.css">
+<link rel="stylesheet" href="css/font-awesome.css">
+<link rel="stylesheet" href="css/reviewfy.css">
+<link rel="stylesheet" href="css/fileinput.min.css">
+<link rel="stylesheet" href="css/bootstrap-dialog.min.css">
+
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/fileinput.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-dialog.min.js"></script> <!-- https://nakupanda.github.io/bootstrap3-dialog/ -->
+<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+
+<link rel="stylesheet" type="text/css" href="css/select2.css">
+<script type="text/javascript" src="js/select2.js"></script>
+
+
+<meta charset="utf-8" />
+ <script src="js/reviewfy.js"></script>
+ <script type="text/javascript" src="js/encoder.js"></script>
+ </head>
+
+<body>
+    
+    <!-- https://www.bootply.com/98314#-->
+    <nav class="navbar navbar-default" role="navigation" style="margin-bottom:0px!important;">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+            <a class="navbar-brand" href="#"><div><img src="img/favicon.png"> NIFify tool</div></a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right tabs" style="margin-top: 11px!important;">
+                <li id="docli" class="tab-link current" data-tab="doc">Document Annotation</li>
+                <li class="tab-link" data-tab="help">Help</li>
+                <!--<li class="nav-item"><a href="#help" data-toggle="tab">Help</a></li>-->
+            </ul>
+       </div>
+    </nav>
+    
+   <!-------------   Single-Document Annotation ----------->
+   <div id="doc" class="tab-content current">
+    <div class="row padd1">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-2">
+                    <input type="text" style="width:100%!important;" id="inName" class="taxonomyInputClass" placeholder="Name"/>
+                </div>
+                <div class="col-lg-10">
+                    <input type="text" style="width:100%!important;" id="inDescription" class="taxonomyInputClass" placeholder="Description"/>
+                </div>
+            </div>
+
+            
+        </div>
+        <div class="col-lg-12">
+           
+           <input id="inQuery" type="search" style="margin-top:5px!important;" class="form-control form-group" placeholder="Enter the Query" />
+
+        </div>
+        <!--
+        <div class="col-lg-12">
+           <textarea class="form-control" id="inDoc" rows="3" style="min-height:300px;" placeholder="Enter the document in plain text"></textarea>
+        </div>
+        -->
+        
+        <br>
+        <div class='bothside'>
+           <div style='float: left;'>
+           &nbsp;&nbsp;
+              <button id="btn_upload" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Upload a NIF file"> <i class="glyphicon glyphicon-plus"></i> ADD ACM</button>
+           </div>
+           <div style='float: right;'>
+              
+
+
+              <div class="input-group-btn " style="float:left!important; margin: 0 0 0 5px!important;"> 
+              <button id="btn_place_types_entities" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-random"></i></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="javascript:dropdown_main('None');"><i class="glyphicon glyphicon-minus"></i> Exclude entity types</a>
+                    <a class="dropdown-item" href="javascript:dropdown_main('Top');"><i class="glyphicon glyphicon-arrow-up"></i> Place on top</a>
+                    <a class="dropdown-item" href="javascript:dropdown_main('Bottom');"><i class="glyphicon glyphicon-arrow-down"></i> Place on bottom</a>
+                    <a class="dropdown-item" href="javascript:dropdown_main('Mix');"><i class="glyphicon glyphicon-random"></i> Mix</a>
+                </div>
+              </div> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+              <button id="btn_stress_pronouns" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="stress the pronouns of the text."> <i class="fa fa-puzzle-piece  fa-lg"></i></button>
+              <button id="btn_4_annotation" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Make automatic annotations according the Dictionary stored."> <i class="fa fa-magic fa-lg"></i></button>
+              <button id="btn_update" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Update the annotations in the NIF and viewer panels."> <i class="fa fa-refresh fa-lg"></i></button>
+              <!--<button id="btn_upload" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Upload a NIF file"> <i class="fa fa-upload fa-lg"></i></button>-->
+              <button id="btn_download" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Download this generated NIF-file"> <i class="fa fa-download fa-lg"></i></button>
+              <button id="btn_review" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Enumerate the annotations and download a list of links of the annotations"> <i class="fa fa-eye fa-lg"></i></button>
+              <button id="btn_inputNIF" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Update the NIF scope with an input NIF"> <i class="fa fa-hand-lizard-o fa-lg"></i></button>
+              <button id="btn_hideNIF" type="button" class="btn btn-primary margin_right" data-toggle="tooltip" title="Show/Hide the NIF content"> <i class="fa fa-code fa-lg"></i></button>
+              
+              
+              
+           </div>
+        </div><br><br><br><br><br><br><br>
+        <div class="col-lg-12">
+            <div>
+                <table id="doc_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
+                    <!--<thead>
+                    <tr>
+                        <th scope="col" style="width: 50px;">#</th>
+                        <th scope="col" style="width: 100px;">Date-Time</th>
+                        <th scope="col">Length</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Query</th>
+                        <th scope="col"></th> 
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Documentos</td>
+                        <td id="sry_doc">0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Sentencias</td>
+                        <td id="sry_sent">0</td>
+                        <td id="sry_sent_avg">0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Annotaciones</td>
+                        <td id="sry_ann">0</td>
+                        <td id="sry_ann_avg">0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    </tbody>-->
+                </table>
+            </div>
+        </div>
+        
+    </div>
+   
+    <br>
+    <div id="divShow" class="row  padd1">  <!-- hide-->
+        <div id="DisplayBlockOLD" class="col-lg-12 borde-left">
+           
+            
+            
+        
+        <div class="col-lg-5 borde-left">
+           <!--<textarea class="form-control" id="outTextarea" rows="30"></textarea>-->
+           <div class="row">
+                <div id="nifdoc" class="col-lg-12 hide" style="overflow-y: scroll; min-height:500px;"> 
+                    -- EMPTY --
+                </div>
+            </div>
+        </div>
+    </div>
+   </div>
+   </div>
+   
+   
+   
+   <!----- Help ---->
+   <div id="help" class="tab-content">
+   
+   <h1>How start searching?</h1>
+   https://ieeexplore.ieee.org/search/advsearch.jsp <br>
+   https://dl.acm.org/results.cfm
+
+
+   </div>
+
+    <br><br><br>
+    
+    <div id="myModal" tabindex="-1" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <h4 id="myModal-title" class="modal-title">Add Annotation</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+              </button>
+              <div id="myModal-title-desc"></div>
+           </div>
+           <div id="myModal-body" class="modal-body form-group">
+               <!-- https://itsolutionstuff.com/post/simple-add-remove-input-fields-dynamically-using-jquery-with-bootstrapexample.html -->
+               <label for="modalSelectURI" class="col-form-label">List of URIs:</label>
+               <div class="input-group control-group after-add-more">
+                   <input id="modalSelectURI" mentiontype="- Select Type -" number="1" type="text" name="addmore[]" class="form-control taIdentRefRoot" placeholder="Link of the selected entity mention">
+                   <!-- taIdentRef-->
+                   <div class="input-group-btn"> 
+                        <button id="btn_type_modalSelectURI" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                - Select Type -
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','- Select Type -');">- Select Type -</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','PERSON');"><i class="glyphicon glyphicon-user"></i> PERSON</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','ORG');"><i class="glyphicon glyphicon-briefcase"></i> ORG</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','PLACE');"><i class="glyphicon glyphicon-map-marker"></i> PLACE</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalSelectURI','MISC');"><i class="glyphicon glyphicon-tag"></i> MISC</a>
+                        </div>
+                   
+                   
+                        <button class="btn btn-success add-more" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
+                   </div>
+               </div>
+               <!--
+               <div class="copy hide">
+                  <div class="control-group input-group" style="margin-top:10px">
+                      <input type="text" name="addmore[]" class="form-control" placeholder="Enter Name Here">
+                      <div class="input-group-btn"> 
+                          <button class="btn btn-danger remove" type="button"><i class="glyphicon glyphicon-remove"></i> Remove</button>
+                      </div>
+                  </div>
+               </div> 
+               
+               
+               <label for="modalSelectURI" class="col-form-label">URI:</label>
+                   <input type="text" class="form-control espacioAbajo" id="modalSelectURI_" placeholder="Link of the selected entity mention"> -->
+               <br>
+               <label for="taxonomyAnn" class="col-form-label">Taxonomy:</label>
+               <input type="text" style="width:100%!important;" id="taxonomyAnn" class="taxonomyInputClass"/>
+
+               <!--
+               <label for="modalSelectTaxonomy" class="col-form-label">Taxonomy:</label>
+               <select id="modalSelectTaxonomy" class="form-control">
+				   <option>Mustard</option>
+				   <option>Ketchup</option>
+				   <option>Relish</option>
+			   </select>-->
+
+           </div>
+           <div class="modal-footer">
+              <p style="text-align: left;"><input type="checkbox" id="cbox_overlaps" value="first_checkbox"> Allow Overlaps</p>
+              <!--<button id="btn_annotate_this_doc" type="button" class="btn btn-warning">Annotate int this doc</button>
+              <button id="btn_annotate_all_doc" type="button" class="btn btn-warning">Annotate in all docs</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="btn_annotate" type="button" class="btn btn-primary">Annotate!</button>-->
+              <div class='bothside'>
+                  <div style='float: left;'>
+                      <button id="btn_annotate_this_doc" type="button" class="btn btn-warning">Annotate int this doc</button>
+                      <button id="btn_annotate_all_doc" type="button" class="btn btn-warning">Annotate in all docs</button>
+                  </div>
+                  <div style='float: right;'>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button id="btn_annotate" type="button" class="btn btn-primary">Annotate!</button>
+                  </div>
+              </div>
+           </div>
+         </div>
+       </div>
+    </div>
+
+
+   <div id="modalUpload" tabindex="-1" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <h4 id="modalUpload-title" class="modal-title">Upload NIF file</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+              </button>
+           </div>
+           <!--<form action="/" method="post" onsubmit="return upload();">-->
+           <div id="modalUpload-body" class="modal-body form-group">
+
+                    <!--<form action="upload" method="post">
+					  <fieldset>
+						<legend>Upload photo</legend>
+						<input type="file" name="fileNif" id="fileNif">
+						<input type="submit" value="Upload">
+					  </fieldset>
+					</form>-->
+
+				  <!--  <input type="file" id="files" name="file" /> Read bytes: 
+					<span class="readBytesButtons">
+					  <button data-startbyte="0" data-endbyte="4">1-5</button>
+					  <button data-startbyte="5" data-endbyte="14">6-15</button>
+					  <button data-startbyte="6" data-endbyte="7">7-8</button>
+					  
+					</span>
+                    <button id="reaaad">entire file</button>
+					<div id="byte_range"></div>
+					<div id="byte_content"></div>-->
+
+                <div class="file-loading">
+                    <input id="input-b9" name="input-b9" type="file"'>
+				</div>
+                <div id="kartik-file-errors"></div>
+
+           </div>
+           <div class="modal-footer">
+              <!--<button type="button" class="btn btn-primary">Annotate!</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              https://getbootstrap.com/docs/4.0/components/modal/ -->
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="modalUpload_upload" type="button" data-dismiss="modal" class="btn btn-primary">Upload</button>
+           </div>
+           <!--<input type="submit" value="Submit">
+           </form>-->
+         </div>
+       </div>
+    </div>
+
+    
+    
+    
+    <div id="modalModifyAnnotation" tabindex="-1" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <h4 id="modalModifyAnnotation-title" class="modal-title">Modify Annotation</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+              </button>
+              <div id="modalModifyAnnotation-title-desc"></div>
+           </div>
+           <div id="modalModifyAnnotation-body" class="modal-body form-group">
+               <label for="modalModifyAnnotationLabel" class="col-form-label">Surface Form:</label>
+                   <input type="text" class="form-control espacioAbajo" id="modalModifyAnnotationLabel" placeholder="New surface form">
+               <!--
+               <label for="modalModifyAnnotationSelectURI" class="col-form-label">URI:</label>
+                   <input type="text" class="form-control espacioAbajo" id="modalModifyAnnotationSelectURI" placeholder="Link of the selected entity mention"> -->
+               
+               <label for="modalModifyAnnotationSelectURI" class="col-form-label">List of URIs:</label>
+               <div class="input-group control-group after-add-more-modification">
+                   <!--<input id="modalModifyAnnotationSelectURI" number="1" type="text" name="addmoremod[]" class="form-control" placeholder="Link of the selected entity mention">
+                   <div class="input-group-btn"> 
+                       <button class="btn btn-success add-more-modification" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
+                   </div>
+                   -->
+                   
+                   <!-- -->
+                   <input id="modalModifyAnnotationSelectURI" mentiontype="- Select Type -" number="1" type="text" name="addmore[]" class="form-control taIdentRefRoot" placeholder="Link of the selected entity mention">
+                   <!-- -->
+                   <div class="input-group-btn"> 
+                        <button id="btn_type_modalModifyAnnotationSelectURI" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                - Select Type -
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','- Select Type -');">- Select Type -</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','PERSON');"><i class="glyphicon glyphicon-user"></i> PERSON</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','ORG');"><i class="glyphicon glyphicon-briefcase"></i> ORG</a>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','PLACE');"><i class="glyphicon glyphicon-map-marker"></i> PLACE</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="javascript:dropdown_action('modalModifyAnnotationSelectURI','MISC');"><i class="glyphicon glyphicon-tag"></i> MISC</a>
+                        </div>
+                   
+                   
+                        <button class="btn btn-success add-more-modification" type="button"><i class="glyphicon glyphicon-plus"></i> Add</button>
+                   </div>
+                   <!-- -->
+                   
+               </div>
+               <br>
+               <label for="taxonomyMod" class="col-form-label">Taxonomy:</label>
+               <input type="text" style="width:100%!important;" id="taxonomyMod" class="taxonomyInputClass"/>
+               <!--<label for="modalModifyAnnotationSelectTaxonomy" class="col-form-label">Taxonomy:</label>
+               <select id="modalModifyAnnotationSelectTaxonomy" class="form-control">
+                   <option>Mustard</option>
+                   <option>Ketchup</option>
+                   <option>Relish</option>
+               </select>-->
+
+           </div>
+           <div class="modal-footer">
+              <!--<button type="button" class="btn btn-primary">Annotate!</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              https://getbootstrap.com/docs/4.0/components/modal/ -->
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="btn_delete_ann" ide="-1" type="button" class="btn btn-secondary" data-dismiss="modal">Delete</button>
+              <!--<a id="a_link" type="button" href="http://www.google.com/" target="_blank">  <button type="button" class="btn btn-secondary">Link</button></a>-->
+              <button id="btn_modify" ide="-1" surfaceform="text" type="button" data-dismiss="modal" class="btn btn-primary">Modify</button>
+           </div>
+         </div>
+       </div>
+    </div>
+
+
+</body>
+<!--
+https://www.html5rocks.com/en/tutorials/file/dndfiles/
+-->
