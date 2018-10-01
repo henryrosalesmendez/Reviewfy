@@ -71,6 +71,16 @@ $(document).ready(function() {
     newDoc = {};
     // to filtering
     filterList = [];
+    
+    $('ul.tabs li').click(function(){
+        var tab_id = $(this).attr('data-tab');
+
+        $('ul.tabs li').removeClass('current');
+        $('.tab-content').removeClass('current');
+
+        $(this).addClass('current');
+        $("#"+tab_id).addClass('current');
+    })
 
     warning_alert = function(text){
         BootstrapDialog.show({
@@ -143,8 +153,9 @@ $(document).ready(function() {
        for (i in D){
            var d = D[i];
            var actions = '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
-           actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-open-file"></i></button>';
-           $("#doc_table").append('<tr id="tr'+i+'"><th scope="row">'+pos.toString()+'</th><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>('+d["fileName"]+')'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
+           actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
+           actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
+           $("#doc_table").append('<tr id="tr'+i+'"><td>'+pos.toString()+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>('+d["fileName"]+')'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
@@ -295,6 +306,7 @@ $(document).ready(function() {
         var L = text.split("\n");
         var first = true;
         var cant = 0;
+        var newidDoc = Object.keys(D).length+1;
         for (i in L){
             var l = L[i];
             if (trim_1(l) == ""){continue;}
@@ -339,6 +351,7 @@ $(document).ready(function() {
                 }        
             }
             newPub["meta:tags"] = 0; // etiqueta por las que se filtra
+            newPub["meta:iddoc"] = newidDoc;
             //newDoc["content"].push(newPub);
             //find suitable position
             var pp = 0;
@@ -363,7 +376,7 @@ $(document).ready(function() {
         newDoc["repited"] = invert_counting(Rr);
         newDoc["typePubl"] = jQuery.extend({}, Rt);
         newDoc["length"] = cant;
-        D[Object.keys(D).length+1] = newDoc;
+        D[newidDoc] = newDoc;
 
        //Update table
        updateMainTable();
@@ -455,12 +468,27 @@ $(document).ready(function() {
         var idd = $(this).attr("idd");
         activeDoc = idd;
         showContent();
-        $( ".divContent" ).each(function(index) {
-            $(this).removeClass("hide");
-            //console.log( index + ": " + $( this ).text() );
-        });
+        show_with_filter();
     });
     
+    show_with_filter = function(){
+        $( ".divContent" ).each(function(index) {
+            $(this).removeClass("hide");
+        });
+    }
+    
+    hide_all = function(){
+        $( ".divContent" ).each(function(index) {
+            $(this).addClass("hide");
+        });
+    }
+    
+    show_with_out_filter = function(){
+        hide_all();
+        $( ".divContent_without_filter" ).each(function(index) {
+            $(this).removeClass("hide");
+        });
+    }
     
     getPub = function(idd,idc){
         var doc = D[idd];
@@ -480,6 +508,25 @@ $(document).ready(function() {
             }
         }
         return false;
+    }
+    
+    
+    apply_on_change_to_selects = function(){
+        $(document).on('change', '.trSelectChange', function () {
+            var idc = $(this).attr("idc");
+            
+            for (i in ListTaxonomy){
+                var l = ListTaxonomy[i];
+                $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
+            }
+            
+            $("#tr_cont_"+idc).addClass(id2color[$(this).val()]);
+            
+            //updating tag in memory
+            var idd = $(this).attr("idd");
+            var pub = getPub(idd,idc);
+            pub["meta:tags"] = $(this).val();
+        });
     }
     
     
@@ -505,7 +552,7 @@ $(document).ready(function() {
         $("#content_table").html(html_table);
         
         var doc = D[idd];
-        $("#spanDocName").html("Showing: uploaded "+doc["name"]);
+        $("#spanDocName").html("("+doc["length"]+") Showing: "+doc["name"]);
         var M = Map[doc["type"]];
         var pos = 1;
 
@@ -551,22 +598,8 @@ $(document).ready(function() {
                     '</tr>');
             pos = pos +1 ;
         }
-        
-        $(document).on('change', '.trSelectChange', function () {
-            var idc = $(this).attr("idc");
-            
-            for (i in ListTaxonomy){
-                var l = ListTaxonomy[i];
-                $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
-            }
-            
-            $("#tr_cont_"+idc).addClass(id2color[$(this).val()]);
-            
-            //updating tag in memory
-            var idd = $(this).attr("idd");
-            var pub = getPub(idd,idc);
-            pub["meta:tags"] = $(this).val();
-        });
+
+        apply_on_change_to_selects();
     }
     
      
@@ -610,6 +643,197 @@ $(document).ready(function() {
             filterList.push(l["text"]);
         }
         showContent();
+    });
+    
+    
+    
+    
+    // --- Difference
+    /*$("#btnDifference").click(function(){
+        alert("there");
+    });*/
+    
+    targetDoc = 0;
+    $(document).on('click', '.btnDifference', function () {
+        var idd = $(this).attr("idd");
+        $("#difference_choose_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col">#</th>'+
+                '<th scope="col"></th>'+
+                '<th scope="col">Date</th>'+
+                '<th scope="col">Time</th>'+
+                '<th scope="col">Length</th>'+
+                '<th scope="col">Name</th>'+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+        $("#difference_choose_table").html(html_table);
+        
+        var pos = 1;
+        for (i in D){
+           if (i == idd){continue;}
+           var d = D[i];
+           var check = '<input type="checkbox" class="chkDiff" idd="'+i+'">';
+           $("#difference_choose_table").append('<tr><td>'+pos.toString()+'</td>'+
+                                      '<td>'+check+'</td>'+
+                                      '<td>'+d["dateUpload"]+'</td>'+
+                                      '<td>'+d["timeUpload"]+'</td>'+
+                                      '<td>'+d["length"]+'</td>'+
+                                      '<td>'+d["name"]+'</td></tr>');
+           pos = pos + 1;
+        }
+        targetDoc = idd;
+        $('#modalDifference').modal("show");
+    });
+    
+    
+    
+    // This return a copy of the publications, each of them has a identifier of the corresponding document
+    operation_doc = function(type, list_of_other){
+        var doc = D[targetDoc];
+        
+        // contructing super set of others
+        var So = new Set();
+        for (x in list_of_other){
+            xdoc = D[list_of_other[x]];
+            for (y in xdoc["content"]){
+                ypub = xdoc["content"][y];
+                So.add(ypub["id"]);
+            }
+        }
+        
+        IDs = []
+        if (type == "1-0"){
+            for (y in doc["content"]){
+                ypub = doc["content"][y];
+                if (So.has(ypub["id"]) == false){
+                    IDs.push(ypub);
+                }
+            }
+        }
+        else if (type == "1-1"){
+           for (y in doc["content"]){
+                ypub = doc["content"][y];
+                if (So.has(ypub["id"]) == true){
+                    IDs.push(ypub);
+                }
+            } 
+        }
+        else if (type == "0-1"){
+            var S = new Set();
+            for (y in doc["content"]){
+                ypub = doc["content"][y];
+                S.add(ypub["id"]);
+            }
+
+            var arrSo = Array.from(So);
+            for (y in arrSo){
+                yid = arrSo[y];
+                if (S.has(yid) == false){
+                    IDs.push(ypub);
+                }
+            } 
+        }
+
+        return IDs;
+    }
+    
+    
+    
+    // type:  1-0 will shows the publications that are in the target document but not in the others
+    //        0-1: the opposite
+    //        1-1: intersection
+    relationCalculation = function(type){
+        activeDoc = -1;
+        $("#content_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col" style="width: 50px;">#</th>'+
+                '<th scope="col" style="width: 150px;">Dump</th>'+
+                '<th scope="col" style="width: 150px;">ID</th>'+
+                '<th scope="col" style="width: 50px;">Year</th>'+
+                '<th scope="col">Title</th>'+
+                '<th scope="col">Authors</th>'+
+                '<th scope="col">Tags</th>'+
+                '<th scope="col"></th> '+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+        
+        $("#content_table").html(html_table);
+        
+        var list_of_other = [];
+
+        $("input:checkbox[class=chkDiff]:checked").each(function() {
+            list_of_other.push($(this).attr("idd"));
+        });
+        
+        if (list_of_other.length == 0){
+            warning_alert("Please, select which dumps do you want to compare it with!");
+            return false;
+        }
+        
+        var other_str = list_of_other.join(",");
+        $("#spanDocName").html("("+D[targetDoc]["length"]+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str);
+        
+        
+        var doc = operation_doc(type,list_of_other);
+        var pos = 1;
+        for (i in doc){
+            var pub = doc[i];
+            
+            // selecting tag
+            var sel=["","","",""];
+            sel[pub["meta:tags"]] = 'selected="selected"';
+            
+            // contructing table
+            var item = '<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
+                        '<td>'+pos+'</td>'+
+                        '<td>'+pub["meta:iddoc"]+'</td>'+
+                        '<td>'+pub["id"]+'</td>'+
+                        '<td>'+pub["year"]+'</td>'+
+                        '<td>'+pub["title"]+'</td>'+
+                        '<td>'+pub["author"]+'</td>'+
+                        '<td>'+
+                            '<select class="trSelectChange" idd="'+pub["meta:iddoc"]+'" idc="'+pub["id"]+'">'+
+                                    '<option '+sel[0]+' value="0">-</option>'+
+                                    '<option '+sel[1]+'value="1">include</option>'+
+                                    '<option '+sel[2]+'value="2">exclude</option>'+
+                                    '<option '+sel[3]+'value="3">maybe</option>'+
+                            '</select>'+
+                        '<td>'+
+                        '</td>'+
+                        '<td>-</td>'+
+                    '</tr>';
+            $("#content_table").append(item);
+            pos = pos +1 ;
+        }
+        
+        
+        apply_on_change_to_selects();
+        show_with_out_filter();
+        $('#modalDifference').modal("hide");
+    }
+    
+    
+    
+    $("#modalDifference_1_0").click(function(){
+        relationCalculation("1-0");
+    });
+    
+    $("#modalDifference_1_1").click(function(){
+        relationCalculation("1-1");
+    });
+    
+    $("#modalDifference_0_1").click(function(){
+        relationCalculation("0-1");
     });
 });
 
