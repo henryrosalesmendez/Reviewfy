@@ -139,7 +139,6 @@ $(document).ready(function() {
        
        
        $("#doc_table").html(html_table);
-       console.log("here");
        var pos = 1;
        for (i in D){
            var d = D[i];
@@ -299,10 +298,8 @@ $(document).ready(function() {
         for (i in L){
             var l = L[i];
             if (trim_1(l) == ""){continue;}
-            console.log(l);
             if (first){  // first line have the columns names
                 if (l.indexOf(Head[newDoc["type"]]) != -1){
-                    console.log("jumping")
                     continue; 
                 }
             }
@@ -311,7 +308,6 @@ $(document).ready(function() {
             
             // seeing the type of publication
             var ptype = trim_1(H[M["type"]]);
-            console.log("1");
             if (ptype in Rt){
                 Rt[ptype] = Rt[ptype] + 1;                
             }
@@ -319,18 +315,14 @@ $(document).ready(function() {
                 Rt[ptype] = 1;
             }
             
-            console.log(ptype);
             if (!(ptype in A)){
-                console.log("------------------> salto 1");
                 continue;
             }
             
-            console.log("2");
             //seeing if it repeated 
             var pid = trim_1(H[M["id"]]);
             if (pid in Rr){
                 Rr[pid] = Rr[pid] + 1;
-                console.log("------------------> salto 2");
                 continue; 
             }
             else{
@@ -338,15 +330,10 @@ $(document).ready(function() {
             }
             
             //
-            console.log("entro");
             var newPub = {};  
             for (j in H){
                 h = trim_1(H[j]);
-                console.log("----");
-                console.log(h);
-                console.log(j);
                 var k = invMap[j];
-                console.log(k);
                 if (k != -1){
                     newPub[k] = h;                    
                 }        
@@ -366,16 +353,9 @@ $(document).ready(function() {
             
             //insert in position
             newDoc["content"].splice(pp, 0, newPub);
-            
             cant = cant + 1;
             
         }
-        //var invRr = invert_counting(Rr);
-        //var invRt = invert_counting(Rt);
-        //newDoc["repited"] = jQuery.extend({}, invRr); // cloning
-        //newDoc["typePubl"] = jQuery.extend({}, invRt);
-        console.log(invert_counting(Rr));
-        console.log(Rt);
         
         newDoc["fileName"] = tempFileInput;
         newDoc["timeUpload"]= new Date().toLocaleTimeString();
@@ -428,15 +408,9 @@ $(document).ready(function() {
         $("#details_table").html(html_table);
         var idd = $(this).attr("idd");
         var doc = D[idd];
-        console.log(doc);
-        console.log(doc["repited"]);
         var pos = 1;
         for (i in doc["repited"]){
             var h = doc["repited"][i];
-            console.log("-->");
-            console.log(i);
-            console.log("-->");
-            console.log(h);
             $("#details_table").append('<tr><td class="text-primary">'+i+'</td><td class="text-primary">'+h+'</td></tr>');
             pos = pos + 1;
         }
@@ -458,15 +432,9 @@ $(document).ready(function() {
         $("#type_table").html(html_table);
         var idd = $(this).attr("idd");
         var doc = D[idd];
-        console.log(doc);
-        console.log(doc["typePubl"]);
         var pos = 1;
         for (i in doc["typePubl"]){
             var h = doc["typePubl"][i];
-            console.log("-->");
-            console.log(i);
-            console.log("-->");
-            console.log(h);
             $("#type_table").append('<tr><td class="text-success">'+i+'</td><td class="text-success">'+h+'</td></tr>');
             pos = pos + 1;
         }
@@ -487,6 +455,10 @@ $(document).ready(function() {
         var idd = $(this).attr("idd");
         activeDoc = idd;
         showContent();
+        $( ".divContent" ).each(function(index) {
+            $(this).removeClass("hide");
+            //console.log( index + ": " + $( this ).text() );
+        });
     });
     
     
@@ -502,16 +474,11 @@ $(document).ready(function() {
     }
     
     esta_en = function(A,a){
-        console.log("------");
-        console.log(A);
-        console.log(a);
         for (k in A){
             if (a == A[k]){
                 return true;
-                console.log("esta:OK");
             }
         }
-        console.log("esta:NO");
         return false;
     }
     
@@ -538,12 +505,8 @@ $(document).ready(function() {
         $("#content_table").html(html_table);
         
         var doc = D[idd];
-        $("#spanDocName").html("Selected: "+doc["name"]);
-        console.log(doc);
-        console.log(doc["content"]);
+        $("#spanDocName").html("Showing: uploaded "+doc["name"]);
         var M = Map[doc["type"]];
-        console.log(":::::::>");
-        console.log(doc["type"]);
         var pos = 1;
 
         var idfilter = -1;
@@ -554,20 +517,13 @@ $(document).ready(function() {
             for (j in filterList){
                 Lfilter.push(invListTags[filterList[j]]);
             }
-            console.log("kkkkkkkkkkkkkkkkkk")
-            console.log(filterList);
-            console.log(Lfilter);
         }
         
         for (i in doc["content"]){
             var pub = doc["content"][i];
-            console.log("--->");
-            console.log(pub);
             
             // filtering
             if (filterList.length != 0){
-                console.log("hhhhhhhhhhhhhhhh::::");
-                console.log(esta_en(Lfilter,pub["meta:tags"]));
                 if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
             }
             
@@ -604,8 +560,6 @@ $(document).ready(function() {
                 $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
             }
             
-            console.log($(this).val());
-            console.log(id2color[$(this).val()]);
             $("#tr_cont_"+idc).addClass(id2color[$(this).val()]);
             
             //updating tag in memory
@@ -615,83 +569,10 @@ $(document).ready(function() {
         });
     }
     
-     /*
-    $(document).on('click', '.btnSearch', function () {
-        $("#content_table").empty();
-        
-        var html_table = '<thead>'+
-            '<tr>'+
-                '<th scope="col" style="width: 50px;">#</th>'+
-                '<th scope="col" style="width: 150px;">ID</th>'+
-                '<th scope="col" style="width: 50px;">Year</th>'+
-                '<th scope="col">Title</th>'+
-                '<th scope="col">Authors</th>'+
-                '<th scope="col">Tags</th>'+
-                '<th scope="col"></th> '+
-            '</tr>'+
-        '</thead>'+
-        '<tbody>'+
-        '</tbody>';
-            
-        
-        $("#content_table").html(html_table);
-        var idd = $(this).attr("idd");
-        var doc = D[idd];
-        $("#spanDocName").html("Selected: "+doc["name"]);
-        console.log(doc);
-        console.log(doc["content"]);
-        var M = Map[doc["type"]];
-        console.log(":::::::>");
-        console.log(doc["type"]);
-        var pos = 1;
-
-
-        for (i in doc["content"]){
-            var pub = doc["content"][i];
-            console.log("--->");
-            console.log(pub);
-            $("#content_table").append('<tr class="" id="tr_cont_'+pub["id"]+'">'+
-                        '<td>'+pos+'</td>'+
-                        '<td>'+pub["id"]+'</td>'+
-                        '<td>'+pub["year"]+'</td>'+
-                        '<td>'+pub["title"]+'</td>'+
-                        '<td>'+pub["author"]+'</td>'+
-                        //'<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
-                        '<td>'+
-                            '<select class="trSelectChange" idd="'+pub["id"]+'">'+
-                                    '<option value="0">-</option>'+
-                                    '<option value="1">include</option>'+
-                                    '<option value="2">exclude</option>'+
-                                    '<option value="3">maybe</option>'+
-                            '</select>'+
-                        '</td>'+
-                        '<td>-</td>'+
-                    '</tr>');
-            pos = pos +1 ;
-           
-        }
-        
-        $(document).on('change', '.trSelectChange', function () {
-            var idd = $(this).attr("idd");
-            
-            for (i in ListTaxonomy){
-                var l = ListTaxonomy[i];
-                $("#tr_cont_"+idd).removeClass(tag2color[l["text"]]);
-            }
-            
-            console.log($(this).val());
-            console.log(id2color[$(this).val()]);
-            $("#tr_cont_"+idd).addClass(id2color[$(this).val()]);
-        });
-      
-    
-    });
-    */
+     
     
     
     // Filtering Tags---
-    
-    //id2color = {0:'include'}
     
     ListTaxonomy = [
         {id: 0, text: '-'},
@@ -709,15 +590,15 @@ $(document).ready(function() {
 
    
    $("#tagFilter").select2({
-    createSearchChoice:function(term, data) { 
-        if ($(data).filter(function() { 
-            return this.text.localeCompare(term)===0; 
-        }).length===0) 
-        {return {id:term, text:term};} 
-    },
-    multiple: true,
-    //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
-    data:ListTaxonomy
+        createSearchChoice:function(term, data) { 
+            if ($(data).filter(function() { 
+                return this.text.localeCompare(term)===0; 
+            }).length===0) 
+            {return {id:term, text:term};} 
+        },
+        multiple: true,
+        //data: [{id: 0, text: 'nerd:Organization'},{id: 1, text: 'dbpo:Company'},{id: 2, text: 'task'}]
+        data:ListTaxonomy
     });
    
    
@@ -728,7 +609,6 @@ $(document).ready(function() {
             l = listTags[i];
             filterList.push(l["text"]);
         }
-        console.log(filterList);
         showContent();
     });
 });

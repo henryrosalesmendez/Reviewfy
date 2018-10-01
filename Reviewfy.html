@@ -35,7 +35,7 @@
                 <span class="icon-bar"></span>
             </button>
             
-            <a class="navbar-brand" href="#"><div><img src="img/favicon.png"> NIFify tool</div></a>
+            <a class="navbar-brand" href="#"><div><img src="img/favicon_reviewfy.png"> Reviewfy tool</div></a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right tabs" style="margin-top: 11px!important;">
@@ -81,7 +81,7 @@
            <div style='float: right;'>
               
 
-
+              <!--
               <div class="input-group-btn " style="float:left!important; margin: 0 0 0 5px!important;"> 
               <button id="btn_place_types_entities" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-random"></i></button>
                 <div class="dropdown-menu">
@@ -96,12 +96,11 @@
               <button id="btn_stress_pronouns" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="stress the pronouns of the text."> <i class="fa fa-puzzle-piece  fa-lg"></i></button>
               <button id="btn_4_annotation" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Make automatic annotations according the Dictionary stored."> <i class="fa fa-magic fa-lg"></i></button>
               <button id="btn_update" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Update the annotations in the NIF and viewer panels."> <i class="fa fa-refresh fa-lg"></i></button>
-              <!--<button id="btn_upload" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Upload a NIF file"> <i class="fa fa-upload fa-lg"></i></button>-->
               <button id="btn_download" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Download this generated NIF-file"> <i class="fa fa-download fa-lg"></i></button>
               <button id="btn_review" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Enumerate the annotations and download a list of links of the annotations"> <i class="fa fa-eye fa-lg"></i></button>
               <button id="btn_inputNIF" type="button" class="btn btn-primary margin_buttons" data-toggle="tooltip" title="Update the NIF scope with an input NIF"> <i class="fa fa-hand-lizard-o fa-lg"></i></button>
               <button id="btn_hideNIF" type="button" class="btn btn-primary margin_right" data-toggle="tooltip" title="Show/Hide the NIF content"> <i class="fa fa-code fa-lg"></i></button>
-              
+              -->
               
               
            </div>
@@ -109,61 +108,21 @@
         <div class="col-lg-12">
             <div>
                 <table id="doc_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
-                    <!--<thead>
-                    <tr>
-                        <th scope="col" style="width: 50px;">#</th>
-                        <th scope="col" style="width: 100px;">Date-Time</th>
-                        <th scope="col">Length</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Query</th>
-                        <th scope="col"></th> 
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Documentos</td>
-                        <td id="sry_doc">0</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Sentencias</td>
-                        <td id="sry_sent">0</td>
-                        <td id="sry_sent_avg">0</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Annotaciones</td>
-                        <td id="sry_ann">0</td>
-                        <td id="sry_ann_avg">0</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    </tbody>-->
                 </table>
             </div>
         </div>
         
-        <div class="col-lg-12"><br><span id="spanDocName"></span></div>
-        <div class="col-lg-12">
+        <div class="col-lg-12 divContent hide"><br><span id="spanDocName"></span></div>
+        <div class="col-lg-12 divContent hide">
             <!-- <input type="text" style="width:100%!important;" id="tagFilter"/> -->
             <div class="input-group control-group">
-                <input type="text" style="width:100%!important;" id="tagFilter"/>
+                <input type="text" style="width:100%!important;" id="tagFilter" placeholder="Select tags to apply filter"/>
                 <div class="input-group-btn"> 
                     <button id="btnFilterTag" state="Off" class="btn btn-secondary" type="button"><i id="iconfilter" class="glyphicon glyphicon-filter"></i> Filter</button>
                 </div>
             </div>
         </div>
-        <div class="col-lg-12">
+        <div class="col-lg-12 divContent hide">
             <div>
                 <table id="content_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
                     <thead>
