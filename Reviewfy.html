@@ -218,9 +218,10 @@
            <br>
            <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button id="modalDifference_1_0" type="button" class="btn btn-primary">1-0</button>
-              <button id="modalDifference_1_1" type="button" class="btn btn-primary">1-1</button>
-              <button id="modalDifference_0_1" type="button" class="btn btn-primary">0-1</button>
+              <button id="modalDifference_1_0" type="button" class="btn btn-primary" data-toggle="tooltip" title="(difference) Display the publications that are in the others dumps (union) but not in this one.">1-0</button>
+              <button id="modalDifference_1_1" type="button" class="btn btn-primary" data-toggle="tooltip" title="(intersection) Display the publication that are in this dump and also in any (union) of the others.">1-1</button>
+              <button id="modalDifference_1_1_" type="button" class="btn btn-primary" data-toggle="tooltip" title="(intersection among all) Display the publication that are at the same time in the selected dumps and in this one.">1*-1*</button>
+              <button id="modalDifference_0_1" type="button" class="btn btn-primary" data-toggle="tooltip" title="(inverse difference) Display the publication of the other dumps (union) which are not in this one.">0-1</button>
            </div>
          </div>
        </div>

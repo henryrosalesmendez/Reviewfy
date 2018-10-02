@@ -651,19 +651,39 @@ $(document).ready(function() {
     
     
     
+    createSetbyDoc = function(idd){
+        var S = new Set();
+        console.log(["idd:",idd]);
+        for (v in D[idd]["content"]){
+            var pub = D[idd]["content"][v];
+            S.add(pub["id"]);
+        }
+        return S;
+    }
+    
+    
+    setIntersection = function(s1,s2){
+        return new Set([...s1].filter(x => s2.has(x))); 
+    }
+    
+    
     // This return a copy of the publications, each of them has a identifier of the corresponding document
     operation_doc = function(type, list_of_other){
         var doc = D[targetDoc];
         
         // contructing super set of others
         var So = new Set();
-        for (x in list_of_other){
-            xdoc = D[list_of_other[x]];
-            for (y in xdoc["content"]){
-                ypub = xdoc["content"][y];
-                So.add(ypub["id"]);
-            }
+        if (type != "1*-1*"){
+            console.log("here");
+            for (x in list_of_other){
+                xdoc = D[list_of_other[x]];
+                for (y in xdoc["content"]){
+                    ypub = xdoc["content"][y];
+                    So.add(ypub["id"]);
+                }
+            }            
         }
+        
         
         IDs = []
         if (type == "1-0"){
@@ -674,13 +694,38 @@ $(document).ready(function() {
                 }
             }
         }
-        else if (type == "1-1"){
+        else if (type == "1-1"){  // intersection of the target with the union of the others
            for (y in doc["content"]){
                 ypub = doc["content"][y];
                 if (So.has(ypub["id"]) == true){
                     IDs.push(ypub);
                 }
             } 
+        }
+        else if (type == "1*-1*"){ // this is the intersection of the  dumps separately
+           console.log("here");
+           var S_target = createSetbyDoc(targetDoc);           
+           for (x in list_of_other){
+                var xdoc = list_of_other[x];
+                var s = createSetbyDoc(xdoc);
+                S_target = setIntersection(S_target,s);
+                console.log(["iterseccion:",S_target]);
+            }   
+            
+            var already = new Set();
+            var L = list_of_other.concat([targetDoc]);
+            console.log(["L:",L]);
+            for (ix in L){
+                var xdoc = L[ix];
+                console.log(["xdoc:",xdoc]);
+                for (y in D[xdoc]["content"]){
+                    ypub = D[xdoc]["content"][y];
+                    if (S_target.has(ypub["id"]) && !(already.has(ypub["id"]))){
+                        IDs.push(ypub);
+                        already.add(ypub["id"]);
+                    }
+                }
+            }            
         }
         else if (type == "0-1"){
             var S = new Set();
@@ -795,6 +840,10 @@ $(document).ready(function() {
     
     $("#modalDifference_0_1").click(function(){
         relationCalculation("0-1");
+    });
+    
+    $("#modalDifference_1_1_").click(function(){
+        relationCalculation("1*-1*");
     });
     
     
