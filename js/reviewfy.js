@@ -159,6 +159,7 @@ $(document).ready(function() {
            var d = D[i];
            var actions =  '<button class="btn btn-secondary btnEdit" type="button" idd="'+i+'" data-toggle="tooltip" title="Edit the data of this dump"><i class="glyphicon glyphicon-edit"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
+           actions = actions + '<button class="btn btn-secondary btnDelete" type="button" idd="'+i+'" data-toggle="tooltip" title="Delete this document"><i class="glyphicon glyphicon-erase"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
            
@@ -1079,6 +1080,33 @@ $(document).ready(function() {
         updateMainTable();
     });
     
+    
+    /// -- btn delete
+    $(document).on('click', '.btnDelete', function () {
+        var idd = $(this).attr("idd");        
+        
+        BootstrapDialog.show({
+            title: 'Erasing document',
+            message: 'Are you sure you want to delete the document number '+idd+'?',
+            buttons: [{
+                cssClass: 'btn-primary',
+                label: 'Yes',
+                action: function(dialog) {
+                    //--
+                    delete D[idd];
+                    updateMainTable();
+                    dialog.close();
+                }
+            }, {
+                label: 'No',
+                action: function(dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+        
+        
+    });
     
     
 });
