@@ -1095,6 +1095,7 @@ $(document).ready(function() {
                     //--
                     delete D[idd];
                     updateMainTable();
+                    hide_all();
                     dialog.close();
                 }
             }, {
