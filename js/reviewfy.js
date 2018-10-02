@@ -81,6 +81,11 @@ $(document).ready(function() {
         $(this).addClass('current');
         $("#"+tab_id).addClass('current');
     })
+    
+    clearFilter = function(){
+        $("#tagFilter").val('').trigger("change");
+        filterList = [];
+    }
 
     warning_alert = function(text){
         BootstrapDialog.show({
@@ -421,6 +426,7 @@ $(document).ready(function() {
         activeDoc = idd;
         showContent();
         show_with_filter();
+        clearFilter();
     });
     
     show_with_filter = function(){
@@ -702,6 +708,7 @@ $(document).ready(function() {
     relationCalculation = function(type){
         activeDoc = -1;
         $("#content_table").empty();
+        clearFilter();
         
         var html_table = '<thead>'+
             '<tr>'+
