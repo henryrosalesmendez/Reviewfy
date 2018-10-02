@@ -152,108 +152,59 @@ $(document).ready(function() {
        var pos = 1;
        for (i in D){
            var d = D[i];
-           var actions = '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
+           var actions =  '<button class="btn btn-secondary btnEdit" type="button" idd="'+i+'" data-toggle="tooltip" title="Edit the data of this dump"><i class="glyphicon glyphicon-edit"></i></button>';
+           actions = actions + '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
-           $("#doc_table").append('<tr id="tr'+i+'"><td>'+pos.toString()+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>('+d["fileName"]+')'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
+           
+           $("#doc_table").append('<tr id="tr'+i+'"><td>'+pos.toString()+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
    
 
-//e.target.
+    //e.target.
     //see https://www.html5rocks.com/en/tutorials/file/dndfiles/
     tempFileInput = "";
-	function readBlob(opt_startByte, opt_stopByte) {
-		var files = document.getElementById('input-b9').files;
-		if (!files.length) {
-		  warning_alert('Please select a file!');
-		  return;
-		}
+    function readBlob(opt_startByte, opt_stopByte) {
+        var files = document.getElementById('input-b9').files;
+        if (!files.length) {
+            warning_alert('Please select a file!');
+            return;
+        }
 
-		var file = files[0];
-		
-		file_temp = file;		
-		fr = new FileReader();
-                //fr.onload = receivedText;
-		fr.onload = function(e){
-		    var result = e.target.result;
-		    //console.log(result);
-		    textFromUpload = e.target.result;
-            //console.log(textFromUpload);
-		    //$("#btn_inputNIF").click();
-            parseTextInput();
-		}
-                fr.readAsText(file);
-	  }
-	  
-	  $('#modalUpload_upload').click(function(evt) {
-         /*warning_alert("It's not working yet :(, you should try to copy/paste the nif content in the text area and apply the next button");
-		/**/if (evt.target.tagName.toLowerCase() == 'button') {
-		  var startByte = evt.target.getAttribute('data-startbyte');
-		  var endByte = evt.target.getAttribute('data-endbyte');
-		  readBlob(startByte, endByte);
-		}
-        $("#divShow").removeClass("hide");/**/
-	  });
-
-
-    //-------- download
-    $("#btn_download").click(function(){
-        /*BootstrapDialog.show({
-            message: "It's not working yet :("
-        });*/
+        var file = files[0];
         
-	if ('Blob' in window) {
-	  BootstrapDialog.show({
-            message: '<label for="filename_input" class="col-form-label">File Name:</label> ' +
-                     '<input type="text" class="form-control espacioAbajo" id="filename_input" '+
-                     'placeholder="Name of the file">',
-            title: 'File Name Input',
-            buttons: [{
-                label: 'Close',
-                action: function(dialog) {
-                    dialog.close();
-                }
-            }, {
-                label: 'Ok',
-                action: function(dialog) {
-                    var fileName = $("#filename_input").val();
-                    tempFileInput = fileName;
-                    if (fileName) {
-                        var htmlText = $('#nifdoc').html();
-                        htmlText = replaceAll(htmlText,"&nbsp;"," ");
-                        var textToWrite = Encoder.htmlDecode(replaceAll(htmlText,"<br>","\n"));
-                        var textFileAsBlob = new Blob([textToWrite], { type: 'text/plain' });
-                        if ('msSaveOrOpenBlob' in navigator) {
-                            navigator.msSaveOrOpenBlob(textFileAsBlob, fileName);
-                        } else {
-                            var downloadLink = document.createElement('a');
-                            downloadLink.download = fileName;
-                            downloadLink.innerHTML = 'Download File';
-                            if ('webkitURL' in window) {
-                                // Chrome allows the link to be clicked without actually adding it to the DOM.
-                                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-                            } else {
-                                // Firefox requires the link to be added to the DOM before it can be clicked.
-                                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                                downloadLink.onclick = function(){};
-                                downloadLink.style.display = 'none';
-                                document.body.appendChild(downloadLink);
-                            }
-                        downloadLink.click();
-                        }
-                    }
-                    dialog.close();
-                }
-            }]
-        });
-	  
-	} else {
-	  alert('Your browser does not support the HTML5 Blob.');
-	}
-
+        file_temp = file;		
+        fr = new FileReader();
+                //fr.onload = receivedText;
+        fr.onload = function(e){
+            var result = e.target.result;
+            //console.log(result);
+            textFromUpload = e.target.result;
+            //console.log(textFromUpload);
+            //$("#btn_inputNIF").click();
+            if (typeInput == "env"){
+                parseEnvInput();
+            }
+            else{
+                parseTextInput();
+            }
+        }
+        fr.readAsText(file);
+    }
+        
+        $('#modalUpload_upload').click(function(evt) {
+            /*warning_alert("It's not working yet :(, you should try to copy/paste the nif content in the text area and apply the next button");
+        /**/if (evt.target.tagName.toLowerCase() == 'button') {
+            var startByte = evt.target.getAttribute('data-startbyte');
+            var endByte = evt.target.getAttribute('data-endbyte');
+            readBlob(startByte, endByte);
+        }
+        $("#divShow").removeClass("hide");/**/
     });
+
+
     
     // count the ocurrences of the values and return the dictionary 
     invert_counting = function(O){
@@ -392,14 +343,15 @@ $(document).ready(function() {
         showPreview: false,
         showUpload: false,
         elErrorContainer: '#kartik-file-errors',
-        allowedFileExtensions: ["csv"]
+        allowedFileExtensions: ["csv","xml"]
         //uploadUrl: '/site/file-upload-single'
     });
 
 
-    
+    typeInput = "";
     $("#btn_upload").click(function(){
         newDoc = {"fileName":"-", "type":"ACM", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
         $("#modalUpload").modal("show");
     });
     
@@ -835,6 +787,293 @@ $(document).ready(function() {
     $("#modalDifference_0_1").click(function(){
         relationCalculation("0-1");
     });
+    
+    
+    
+    
+    // --- downloading environment
+    
+    CreateEnvironment = function(){
+        var doc = document.implementation.createDocument("", "", null);
+        var envElem = doc.createElement("environment");
+        var dumpElem = doc.createElement("dump");
+        for (i in D){
+            var d = D[i];
+            console.log(d);
+            
+            var dumpItemElem = doc.createElement("dumpItem");
+            dumpItemElem.setAttribute("id", i);
+            dumpItemElem.setAttribute("fileName", d["fileName"]);
+            dumpItemElem.setAttribute("type", d["type"]);
+            dumpItemElem.setAttribute("name", d["name"]);
+            dumpItemElem.setAttribute("searchQuery", d["searchQuery"]);
+            dumpItemElem.setAttribute("dateUpload", d["dateUpload"]);
+            dumpItemElem.setAttribute("timeUpload", d["timeUpload"]);
+            dumpItemElem.setAttribute("length", d["length"]);
+            dumpItemElem.setAttribute("description", d["description"]);
+            
+            
+            var dumpItemRepitedElem = doc.createElement("dumpItemRepited");
+            for (j in d["repited"]){
+                var rp = d["repited"][j];
+                var dumpItemRepitedElemItem = doc.createElement("dumpItemRepitedItem");
+                dumpItemRepitedElemItem.setAttribute("key", j);
+                dumpItemRepitedElemItem.setAttribute("value", rp);
+                dumpItemRepitedElem.appendChild(dumpItemRepitedElemItem);
+            }
+            dumpItemElem.appendChild(dumpItemRepitedElem);
+            
+            var dumpItemTypeElem = doc.createElement("dumpItemType");
+            for (j in d["typePubl"]){
+                var tp = d["typePubl"][j];
+                var dumpItemTypeElemItem = doc.createElement("dumpItemTypeItem");
+                dumpItemTypeElemItem.setAttribute("key", j);
+                dumpItemTypeElemItem.setAttribute("value", tp);
+                dumpItemTypeElem.appendChild(dumpItemTypeElemItem);
+            }
+            dumpItemElem.appendChild(dumpItemTypeElem);
+            
+            var dumpContentElem = doc.createElement("dumpContent");  
+            for (j in d["content"]){
+                var content = d["content"][j];             
+                var dumpItemContentElem = doc.createElement("dumpItemContent");              
+                for (k in content){
+                    var dumpItemContentElemItem = doc.createElement("dumpItemContentItem");  
+                    console.log(["k:",k," content[k]:",content[k]]);
+                    dumpItemContentElemItem.setAttribute("key", k);
+                    dumpItemContentElemItem.setAttribute("value", content[k]);
+                    dumpItemContentElem.appendChild(dumpItemContentElemItem);
+                }
+                dumpContentElem.appendChild(dumpItemContentElem);
+            }
+            dumpItemElem.appendChild(dumpContentElem);
+            
+            
+            dumpElem.appendChild(dumpItemElem);
+        }
+        
+        envElem.appendChild(dumpElem);
+        doc.appendChild(envElem);
+        
+        /*var text = $("#inNotes").val();
+        console.log(text);
+        var noteElem = doc.createElement("notes");
+        var newText = doc.createTextNode(text);
+        noteElem.appendChild(newText);
+        doc.appendChild(noteElem);*/
+        
+        var xml_str = '<?xml version="1.0" encoding="UTF-8"?>';
+        var xml_body = new XMLSerializer().serializeToString(doc);
+        return xml_str + xml_body;
+    }
+    
+    
+    
+    $("#btn_download").click(function(){
+        if ('Blob' in window) {
+            BootstrapDialog.show({
+                message: '<label for="filename_input" class="col-form-label">File Name:</label> ' +
+                        '<input type="text" class="form-control espacioAbajo" id="filename_input" '+
+                        'placeholder="Name of the file">',
+                title: 'File Name Input',
+                buttons: [{
+                    label: 'Close',
+                    action: function(dialog) {
+                        dialog.close();
+                    }
+                }, {
+                    label: 'Ok',
+                    action: function(dialog) {
+                        var fileName = $("#filename_input").val();
+                        if (fileName) {
+                            //var htmlText = $('#nifdoc').html();
+                            //htmlText = replaceAll(htmlText,"&nbsp;"," ");
+                            //var textToWrite = Encoder.htmlDecode(replaceAll(htmlText,"<br>","\n"));
+                            textToWrite = CreateEnvironment();
+                            var textFileAsBlob = new Blob([textToWrite], { type: 'text/plain' });
+                            if ('msSaveOrOpenBlob' in navigator) {
+                                navigator.msSaveOrOpenBlob(textFileAsBlob, fileName);
+                            } else {
+                                var downloadLink = document.createElement('a');
+                                downloadLink.download = fileName;
+                                downloadLink.innerHTML = 'Download File';
+                                if ('webkitURL' in window) {
+                                    // Chrome allows the link to be clicked without actually adding it to the DOM.
+                                    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                                } else {
+                                    // Firefox requires the link to be added to the DOM before it can be clicked.
+                                    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                                    downloadLink.onclick = function(){};
+                                    downloadLink.style.display = 'none';
+                                    document.body.appendChild(downloadLink);
+                                }
+                            downloadLink.click();
+                            }
+                        }
+                        dialog.close();
+                    }
+                }]
+            });
+        
+        } else {
+        alert('Your browser does not support the HTML5 Blob.');
+        }
+    });
+    
+    
+    
+    ///-- uploading environment
+    $("#btn_upload_environment").click(function(){
+        typeInput = "env";
+        $("#modalUpload").modal("show");
+    });
+    
+    
+    //see https://davidwalsh.name/convert-xml-json
+    parseEnvInput = function(){
+        D = {};
+        var text = undefined;
+        if (textFromUpload == undefined){
+            text = $("#inDoc").val();
+        } else{
+          text = textFromUpload;
+          textFromUpload = undefined;
+        }
+        
+        parser = new DOMParser();
+        xmlDoc = parser.parseFromString(text,"text/xml");
+        
+        
+        var dumpItem = xmlDoc.getElementsByTagName("dumpItem");
+        console.log(["dumpItem",dumpItem]);
+        console.log(["len:",dumpItem.length]);
+        
+        //for (di in dumpItem){
+        //for (var di = 0; di < dumpItem.childNodes.length; di++){
+        for (var di = 0; di < dumpItem.length; di++){
+            //var dump = dumpItem.childNodes.item(di);
+            var dump = dumpItem[di];
+            console.log("--- new doc ---");
+            
+            newDoc = {};
+            for (var j = 0; j < dump.attributes.length; j++) {
+                var attribute = dump.attributes.item(j);
+                newDoc[attribute.nodeName] = attribute.nodeValue;
+            }
+            console.log(["newDoc:",newDoc]);
+            
+            
+            if (dump.hasChildNodes()) {
+                for(var i = 0; i < dump.childNodes.length; i++) {
+                    var item = dump.childNodes.item(i);
+                    var nodeName = item.nodeName;
+                    if (nodeName == "dumpItemRepited"){
+                        if (item.hasChildNodes()) {
+                            var rdic = {};
+                            for(var j = 0; j < item.childNodes.length; j++) {
+                                var rep = item.childNodes.item(j);
+                                
+                                var dd = {};
+                                for (var k = 0; k < rep.attributes.length; k++) {
+                                    var attribute = rep.attributes.item(k);
+                                    dd[attribute.nodeName] = attribute.nodeValue;
+                                }
+                                var _k = dd["key"];
+                                var _v = dd["value"];
+                                rdic[parseInt(_k)] = parseInt(_v);
+                                console.log(["_k:",_k]);
+                                console.log(["_v:",_v]);
+                            }
+                            console.log(["rdic:",rdic]);
+                            //alert("time");
+                            newDoc["repited"] = rdic;
+                        }                        
+                    }
+                    else if (nodeName == "dumpItemType"){
+                        if (item.hasChildNodes()) {
+                            var tdic = {};
+                            for(var j = 0; j < item.childNodes.length; j++) {
+                                var rep = item.childNodes.item(j);
+                                
+                                var dd = {};
+                                for (var k = 0; k < rep.attributes.length; k++) {
+                                    var attribute = rep.attributes.item(k);
+                                    dd[attribute.nodeName] = attribute.nodeValue;
+                                }
+                                var _k = dd["key"];
+                                var _v = dd["value"];
+                                tdic[_k] = parseInt(_v);
+                                console.log(["_k:",_k]);
+                                console.log(["_v:",_v]);
+                            }
+                            console.log(["tdic:",tdic]);
+                            //alert("time2");
+                            newDoc["typePubl"] = tdic;
+                        }
+                    }
+                    else if (nodeName == "dumpContent"){
+                        var content = [];
+                        if (item.hasChildNodes()) {
+                            for(var j = 0; j < item.childNodes.length; j++) {
+                                var rcont = item.childNodes.item(j);
+                                P = {}
+                                for(var k = 0; k < rcont.childNodes.length; k++) {
+                                    var pub = rcont.childNodes.item(k);
+                                    var dd = {};
+                                    for (var t = 0; t < pub.attributes.length; t++) {
+                                        var attribute = pub.attributes.item(t);
+                                        dd[attribute.nodeName] = attribute.nodeValue;
+                                    }
+                                    var _k = dd["key"];
+                                    var _v = dd["value"];
+                                    P[_k] = _v;
+                                    console.log(["_k:",_k]);
+                                    console.log(["_v:",_v]);
+                                    //alert("time3");
+                                }
+                                console.log(["P:",P]);
+                                content.push(P);
+                            }
+                            
+                        }
+                        newDoc["content"] = content;
+                    }
+                }
+            } 
+            console.log(newDoc);
+            D[newDoc["id"]] = newDoc;
+        }
+        updateMainTable();
+    }
+    
+    
+    // ---- modal details
+    docEditId = 0;
+    $(document).on('click', '.btnEdit', function () {
+        docEditId = $(this).attr("idd");
+        doc = D[docEditId];
+        console.log(["D[name]",doc["name"]]);
+        $("#inNameEdit").val(doc["name"]);
+        $("#inDescriptionEdit").val(doc["description"]);
+        $("#inQueryEdit").val(doc["searchQuery"]);
+        
+        $("#modalEdit").modal("show");
+        
+    });
+    
+    //$("#btnEditModify").click(function(){
+    $(document).on('click', '#btnEditModify', function () {
+        console.log("here");
+        var doc = D[docEditId];
+        
+        doc["name"] = $("#inNameEdit").val(); if (doc["name"] == undefined){doc["name"] = "";}
+        doc["description"] = $("#inDescriptionEdit").val(); if (doc["description"] == undefined){doc["description"] = "";}
+        doc["searchQuery"] = $("#inQueryEdit").val(); if (doc["searchQuery"] == undefined){doc["searchQuery"] = "";}
+        updateMainTable();
+    });
+    
+    
+    
 });
 
 
