@@ -139,7 +139,7 @@ $(document).ready(function() {
        
        var html_table = '<thead>'+
         '<tr>'+
-            '<th scope="col" style="width: 50px;">#</th>'+
+            '<th scope="col" style="width: 50px;">Dump</th>'+
             '<th scope="col" style="width: 100px;">Date</th>'+
             '<th scope="col" style="width: 100px;">Time</th>'+
             '<th scope="col" style="width: 50px;">Length</th>'+
@@ -163,7 +163,7 @@ $(document).ready(function() {
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
            
-           $("#doc_table").append('<tr id="tr'+i+'"><td>'+pos.toString()+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
+           $("#doc_table").append('<tr id="tr'+i+'"><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
@@ -619,7 +619,7 @@ $(document).ready(function() {
         
         var html_table = '<thead>'+
             '<tr>'+
-                '<th scope="col">#</th>'+
+                '<th scope="col">Dump</th>'+
                 '<th scope="col"></th>'+
                 '<th scope="col">Date</th>'+
                 '<th scope="col">Time</th>'+
@@ -637,7 +637,7 @@ $(document).ready(function() {
            if (i == idd){continue;}
            var d = D[i];
            var check = '<input type="checkbox" class="chkDiff" idd="'+i+'">';
-           $("#difference_choose_table").append('<tr><td>'+pos.toString()+'</td>'+
+           $("#difference_choose_table").append('<tr><td>'+i+'</td>'+
                                       '<td>'+check+'</td>'+
                                       '<td>'+d["dateUpload"]+'</td>'+
                                       '<td>'+d["timeUpload"]+'</td>'+
@@ -741,7 +741,7 @@ $(document).ready(function() {
         }
         
         var other_str = list_of_other.join(",");
-        $("#spanDocName").html("("+D[targetDoc]["length"]+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str);
+        
         
         
         var doc = operation_doc(type,list_of_other);
@@ -776,7 +776,8 @@ $(document).ready(function() {
             pos = pos +1 ;
         }
         
-        
+        pos = pos - 1;
+        $("#spanDocName").html("("+pos+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str);
         apply_on_change_to_selects();
         show_with_out_filter();
         $('#modalDifference').modal("hide");
