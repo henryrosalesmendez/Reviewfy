@@ -4,67 +4,117 @@ $(document).ready(function() {
     //D =  {1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}, "length":50, "description":"ABABAB", "content":["id"]} };
     // In order tounify the input script, first words of the columns
     Head = {"ACM":'"type","id","author"'};
+    Head = {"IEEE":'"Document Title",Authors,"Author Affiliations"'};
     //alowing publications
     Allow = {"ACM":{"article":0}};
     
     // My Names of the fields
-    invMap = { 0: "type",
-            1: "id",
-            2: "author",
-            3: "editor",
-            4: "advisor",
-            5: "note",
-            6: "title",
-            7: "pages",
-            8: "article_no",
-            9: "num_pages",
-            10:"keywords",
-            11:"doi",
-            12:"journal",
-            13:"issue_date",
-            14:"volume",
-            15:"issue_no",
-            16:"description",
-            17:"month",
-            18:"year",
-            19:"issn",
-            20:"booktitle",
-            21:"acronym",
-            22:"edition",
-            23:"isbn",
-            24:"conf_loc",
-            25:"publisher",
-            26:"publisher_loc"
+    invMap = {"ACM": { 0: "type",
+                    1: "id",
+                    2: "author",
+                    3: "editor",
+                    4: "advisor",
+                    5: "note",
+                    6: "title",
+                    7: "pages",
+                    8: "article_no",
+                    9: "num_pages",
+                    10:"keywords",
+                    11:"doi",
+                    12:"journal",
+                    13:"issue_date",
+                    14:"volume",
+                    15:"issue_no",
+                    16:"description",
+                    17:"month",
+                    18:"year",
+                    19:"issn",
+                    20:"booktitle",
+                    21:"acronym",
+                    22:"edition",
+                    23:"isbn",
+                    24:"conf_loc",
+                    25:"publisher",
+                    26:"publisher_loc"
+                
+                 },
+               "IEEE":{
+                    100: "id", // autonumeric
+                    1: "author",
+                    0: "title",
+                    16:"keywords",
+                    13:"doi",
+                    26:"issue_date",
+                    6: "volume",
+                    7: "issue_no", // issue
+                    5:"year",
+                    11:"issn",
+                    3:"booktitle", // booktitle
+                    12:"isbn",
+                    28:"publisher"
+           }
       };
     //In order to unify the input of the csv
     Map = {"ACM":{
-            "type" : 0,
-            "id" : 1,
-            "author" : 2,
-            "editor" : 3,
-            "advisor" : 4,
-            "note" : 5,
-            "title" : 6,
-            "pages" : 7,
-            "article_no" : 8,
-            "num_pages" : 9,
-            "keywords" : 10,
-            "doi" : 11,
-            "journal" : 12,
-            "issue_date" : 13,
-            "volume" : 14,
-            "issue_no" : 15,
-            "description": 16,
-            "month" : 17,
-            "year" : 18,
-            "issn": 19,
-            "booktitle" : 20,
-            "acronym" : 21,
-            "edition" : 22,
-            "isbn" : 23,
-            "conf_loc" : 24,
-            "publisher" : 25,
-            "publisher_loc" : 26}
+                    "type" : 0,
+                    "id" : 1,
+                    "author" : 2,
+                    "editor" : 3,
+                    "advisor" : 4,
+                    "note" : 5,
+                    "title" : 6,
+                    "pages" : 7,
+                    "article_no" : 8,
+                    "num_pages" : 9,
+                    "keywords" : 10,
+                    "doi" : 11,
+                    "journal" : 12,
+                    "issue_date" : 13,
+                    "volume" : 14,
+                    "issue_no" : 15,
+                    "description": 16,
+                    "month" : 17,
+                    "year" : 18,
+                    "issn": 19,
+                    "booktitle" : 20,
+                    "acronym" : 21,
+                    "edition" : 22,
+                    "isbn" : 23,
+                    "conf_loc" : 24,
+                    "publisher" : 25,
+                    "publisher_loc" : 26
+        
+           },
+            
+           "IEEE":{
+                    "type" : -1,
+                    "id" : 100, // autonumeric
+                    "author" : 1,
+                    "editor" : -1,
+                    "advisor" : -1,
+                    "note" : -1,
+                    "title" : 0,
+                    "pages" : -1,
+                    "article_no" : -1,
+                    "num_pages" : -1,
+                    "keywords" : 16,
+                    "doi" : 13,
+                    "journal" : -1,
+                    "issue_date" : 26,
+                    "volume" : 6,
+                    "issue_no" : 7, // issue
+                    "description": -1,
+                    "month" : -1,
+                    "year" : 5,
+                    "issn": 11,
+                    "booktitle" : 3, // booktitle
+                    "acronym" : -1,
+                    "edition" : -1,
+                    "isbn" : 12,
+                    "conf_loc" : -1,
+                    "publisher" : 28,
+                    "publisher_loc" : -1               
+           }
       }
     
     // Global because I specify in the clic-time the kind of library: ACM, IEEE, etc
@@ -130,15 +180,19 @@ $(document).ready(function() {
         return txt.substr(ini,fin-ini+1);
     }
 
-    
+   
+   
+   type2color = {
+       "ACM": "primary",
+       "IEEE": "success"
+   };
    
    updateMainTable = function(){
        $("#doc_table").empty();
        
-       
-       
        var html_table = '<thead>'+
         '<tr>'+
+            '<th scope="col" style="width: 50px;">Lib.</th>'+
             '<th scope="col" style="width: 50px;">Dump</th>'+
             '<th scope="col" style="width: 100px;">Date</th>'+
             '<th scope="col" style="width: 100px;">Time</th>'+
@@ -157,13 +211,14 @@ $(document).ready(function() {
        var pos = 1;
        for (i in D){
            var d = D[i];
+           var ttt = '<span class="label label-'+type2color[d["type"]]+'">'+d["type"]+'</span>';
            var actions =  '<button class="btn btn-secondary btnEdit" type="button" idd="'+i+'" data-toggle="tooltip" title="Edit the data of this dump"><i class="glyphicon glyphicon-edit"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDelete" type="button" idd="'+i+'" data-toggle="tooltip" title="Delete this document"><i class="glyphicon glyphicon-erase"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
            
-           $("#doc_table").append('<tr id="tr'+i+'"><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
+           $("#doc_table").append('<tr id="tr'+i+'"><td>'+ttt+'</td><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
@@ -233,7 +288,8 @@ $(document).ready(function() {
 		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 	  };
 	}
-
+	
+	
 
     textFromUpload = undefined;
     parseTextInput = function(){
@@ -245,6 +301,10 @@ $(document).ready(function() {
           textFromUpload = undefined;
         }
         
+        // in the case of automatic identifier needed
+        var randd = parseInt(Math.random()*10000);
+        var randd_ = randd.toString();
+        
         
         //meta-data
         var dname = $("#inName").val();if (dname == undefined){dname = "";}
@@ -255,6 +315,7 @@ $(document).ready(function() {
         newDoc["description"] = ddescription;
         newDoc["searchQuery"] = dquery;
         var M = Map[newDoc["type"]];
+        var iM = invMap[newDoc["type"]];
         var A = Allow[newDoc["type"]];
         
         // parsing
@@ -269,47 +330,59 @@ $(document).ready(function() {
             if (trim_1(l) == ""){continue;}
             if (first){  // first line have the columns names
                 if (l.indexOf(Head[newDoc["type"]]) != -1){
+                    console.log("saltando..");
                     continue; 
                 }
             }
             
             var H = l.split('","');
-            
             // seeing the type of publication
-            var ptype = trim_1(H[M["type"]]);
-            if (ptype in Rt){
-                Rt[ptype] = Rt[ptype] + 1;                
-            }
-            else{
-                Rt[ptype] = 1;
-            }
-            
-            if (!(ptype in A)){
-                continue;
+            if (A != undefined){
+                var ptype = trim_1(H[M["type"]]);
+                if (ptype in Rt){
+                    Rt[ptype] = Rt[ptype] + 1;                
+                }
+                else{
+                    Rt[ptype] = 1;
+                }
+                
+                if (!(ptype in A)){
+                    continue;
+                }
             }
             
             //seeing if it repeated 
-            var pid = trim_1(H[M["id"]]);
-            if (pid in Rr){
-                Rr[pid] = Rr[pid] + 1;
-                continue; 
-            }
-            else{
-                Rr[pid] = 1;
+            if (M["id"] < 100){
+                var pid = trim_1(H[M["id"]]);
+                if (pid in Rr){
+                    Rr[pid] = Rr[pid] + 1;
+                    continue; 
+                }
+                else{
+                    Rr[pid] = 1;
+                }
             }
             
             //
             var newPub = {};  
             for (j in H){
                 h = trim_1(H[j]);
-                var k = invMap[j];
+                var k = M[iM[j]];
                 if (k != -1){
-                    newPub[k] = h;                    
-                }        
+                    newPub[iM[j]] = h;                    
+                }
             }
+            
+            //if there is autonumeric
+            if (100 in iM){
+                var cc = cant+100001;                
+                newPub[iM[100]] = randd_.concat(cc.toString());
+            }
+            
             newPub["meta:tags"] = 0; // etiqueta por las que se filtra
             newPub["meta:iddoc"] = newidDoc;
-            //newDoc["content"].push(newPub);
+            newDoc["content"].push(newPub);
+            /*  NO BORRAR ----
             //find suitable position
             var pp = 0;
             var _id = parseInt(newPub["id"]);
@@ -322,7 +395,7 @@ $(document).ready(function() {
             }
             
             //insert in position
-            newDoc["content"].splice(pp, 0, newPub);
+            newDoc["content"].splice(pp, 0, newPub);*/
             cant = cant + 1;
             
         }
@@ -355,8 +428,15 @@ $(document).ready(function() {
 
 
     typeInput = "";
-    $("#btn_upload").click(function(){
+    $("#btn_upload_ACM").click(function(){
         newDoc = {"fileName":"-", "type":"ACM", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
+        $("#modalUpload").modal("show");
+    });
+    
+    
+    $("#btn_upload_IEEE").click(function(){
+        newDoc = {"fileName":"-", "type":"IEEE", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         typeInput = "dump";
         $("#modalUpload").modal("show");
     });
@@ -364,6 +444,8 @@ $(document).ready(function() {
 
     // ---- modal details
     $(document).on('click', '.btnDetails', function () {
+        
+        //--------
         $("#details_table").empty();
         
         var html_table = '<thead>'+
@@ -476,6 +558,7 @@ $(document).ready(function() {
             
             for (i in ListTaxonomy){
                 var l = ListTaxonomy[i];
+                console.log(["l:",l,'l["text"]:',l["text"],'tag2color[l["text"]]:',tag2color[l["text"]]]);
                 $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
             }
             
@@ -538,6 +621,7 @@ $(document).ready(function() {
             sel[pub["meta:tags"]] = 'selected="selected"';
             
             // contructing table
+            var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>';
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
                         '<td>'+pub["id"]+'</td>'+
@@ -553,7 +637,7 @@ $(document).ready(function() {
                                     '<option '+sel[3]+'value="3">maybe</option>'+
                             '</select>'+
                         '</td>'+
-                        '<td>-</td>'+
+                        '<td>'+actions+'</td>'+
                     '</tr>');
             pos = pos +1 ;
         }
@@ -637,7 +721,8 @@ $(document).ready(function() {
            if (i == idd){continue;}
            var d = D[i];
            var check = '<input type="checkbox" class="chkDiff" idd="'+i+'">';
-           $("#difference_choose_table").append('<tr><td>'+i+'</td>'+
+           var ttt = '<span class="label label-'+type2color[d["type"]]+'">'+d["type"]+'</span>';
+           $("#difference_choose_table").append('<tr><td>'+ttt+' '+i+'</td>'+
                                       '<td>'+check+'</td>'+
                                       '<td>'+d["dateUpload"]+'</td>'+
                                       '<td>'+d["timeUpload"]+'</td>'+
@@ -670,6 +755,8 @@ $(document).ready(function() {
     // This return a copy of the publications, each of them has a identifier of the corresponding document
     operation_doc = function(type, list_of_other){
         var doc = D[targetDoc];
+        var attr = $("#selectModalDiff").val();
+        console.log(attr);
         
         // contructing super set of others
         var So = new Set();
@@ -679,7 +766,9 @@ $(document).ready(function() {
                 xdoc = D[list_of_other[x]];
                 for (y in xdoc["content"]){
                     ypub = xdoc["content"][y];
-                    So.add(ypub["id"]);
+                    if (ypub[attr] != ""){
+                        So.add(ypub[attr]);                        
+                    }
                 }
             }            
         }
@@ -689,7 +778,7 @@ $(document).ready(function() {
         if (type == "1-0"){
             for (y in doc["content"]){
                 ypub = doc["content"][y];
-                if (So.has(ypub["id"]) == false){
+                if (ypub[attr]!="" && So.has(ypub[attr]) == false){
                     IDs.push(ypub);
                 }
             }
@@ -697,7 +786,7 @@ $(document).ready(function() {
         else if (type == "1-1"){  // intersection of the target with the union of the others
            for (y in doc["content"]){
                 ypub = doc["content"][y];
-                if (So.has(ypub["id"]) == true){
+                if (ypub[attr]!="" && So.has(ypub[attr]) == true){
                     IDs.push(ypub);
                 }
             } 
@@ -720,9 +809,9 @@ $(document).ready(function() {
                 console.log(["xdoc:",xdoc]);
                 for (y in D[xdoc]["content"]){
                     ypub = D[xdoc]["content"][y];
-                    if (S_target.has(ypub["id"]) && !(already.has(ypub["id"]))){
+                    if (ypub[attr]!="" && S_target.has(ypub[attr]) && !(already.has(ypub[attr]))){
                         IDs.push(ypub);
-                        already.add(ypub["id"]);
+                        already.add(ypub[attr]);
                     }
                 }
             }            
@@ -731,7 +820,9 @@ $(document).ready(function() {
             var S = new Set();
             for (y in doc["content"]){
                 ypub = doc["content"][y];
-                S.add(ypub["id"]);
+                if (ypub[attr]!=""){
+                    S.add(ypub[attr]);                    
+                }
             }
 
             var arrSo = Array.from(So);
@@ -1156,6 +1247,43 @@ $(document).ready(function() {
             }]
         });
         
+        
+    });
+    
+    
+    
+    ///--- details of publication
+    $(document).on('click', '.btnDetailsPub', function () {
+        var idp = $(this).attr("idp");
+        var idd = $(this).attr("idd");
+        
+        
+        $("#fields_table").empty();
+        
+        var html_table = '<thead>'+
+            '<tr>'+
+                '<th scope="col">Key</th>'+
+                '<th scope="col">Value</th>'+
+            '</tr>'+
+        '</thead>'+
+        '<tbody>'+
+        '</tbody>';
+            
+   
+        $("#fields_table").html(html_table);
+        var idd = $(this).attr("idd");
+        var doc = D[idd];
+        console.log(["doc",doc]);
+        for (i in D[idd]["content"]){
+            var pub = D[idd]["content"][i];
+            if (pub["id"] == idp){
+                for (k in pub){
+                    var h  = pub[k];
+                    $("#fields_table").append('<tr><td class="text-primary">'+k+'</td><td class="text-primary">'+h+'</td></tr>');
+                }
+            }
+        }
+        $("#modalPublication").modal("show");
         
     });
     
