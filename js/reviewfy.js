@@ -52,7 +52,19 @@ $(document).ready(function() {
                     3:"booktitle", // booktitle
                     12:"isbn",
                     28:"publisher"
-           }
+               },
+               "Springer":{
+                    0:"title",
+                    1:"booktitle",
+                    3:"volume",
+                    4:"issue_no",
+                    5:"doi",
+                    6:"author",
+                    7:"year",
+                    8:"url",
+                    9:"type",
+                    100:"id"
+               }
       };
     //In order to unify the input of the csv
     Map = {"ACM":{
@@ -114,13 +126,30 @@ $(document).ready(function() {
                     "conf_loc" : -1,
                     "publisher" : 28,
                     "publisher_loc" : -1               
-           }
+           },
+           "Springer":{
+                    "title":0,
+                    "booktitle":1,
+                    "volume":3,
+                    "issue_no":4,
+                    "doi":5,
+                    "author":6,
+                    "year":7,
+                    "url":8,
+                    "type":9,
+                    "id":100
+               }
       }
     
     // Global because I specify in the clic-time the kind of library: ACM, IEEE, etc
     newDoc = {};
     // to filtering
     filterList = [];
+    // for BibTex
+    type2bibtexchr = {
+        "ACM":{"start":'{', "end":'}'},
+        "SCD":{"start":'"', "end":'"'},
+    };
     
     $('ul.tabs li').click(function(){
         var tab_id = $(this).attr('data-tab');
@@ -184,7 +213,9 @@ $(document).ready(function() {
    
    type2color = {
        "ACM": "primary",
-       "IEEE": "success"
+       "IEEE": "success",
+       "SCD": "warning",
+       "Springer": "info"
    };
    
    updateMainTable = function(){
@@ -249,7 +280,13 @@ $(document).ready(function() {
                 parseEnvInput();
             }
             else{
-                parseTextInput();
+                if (typeFile == "CSV"){
+                    parseTextInputCSV();
+                }
+                else{
+                    parseTextInputBibTex();
+                }
+                
             }
         }
         fr.readAsText(file);
@@ -284,15 +321,25 @@ $(document).ready(function() {
 
 
     if (!String.prototype.trim) {
-	  String.prototype.trim = function () {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	  };
-	}
-	
-	
+        String.prototype.trim = function () {
+        return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        };
+    }
+
+    
+    /*max = function(A){
+        var mmax = A[0];
+        for (i in A){
+            a = A[i];
+            if (mmax < a){
+                mmax = 
+            }
+        }
+    }*/
 
     textFromUpload = undefined;
-    parseTextInput = function(){
+    typeFile = "";
+    parseTextInputCSV = function(){
         var text = undefined;
         if (textFromUpload == undefined){
             text = $("#inDoc").val();
@@ -324,7 +371,15 @@ $(document).ready(function() {
         var L = text.split("\n");
         var first = true;
         var cant = 0;
-        var newidDoc = Object.keys(D).length+1;
+        //var newidDoc = Object.keys(D).length+1;
+        //console.log(["Keys:",Object.keys(D)]);
+        //console.log(["max:",_max(Object.keys(D))]);
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        
         for (i in L){
             var l = L[i];
             if (trim_1(l) == ""){continue;}
@@ -422,13 +477,14 @@ $(document).ready(function() {
         showPreview: false,
         showUpload: false,
         elErrorContainer: '#kartik-file-errors',
-        allowedFileExtensions: ["csv","xml"]
+        allowedFileExtensions: ["csv","xml","bib"]
         //uploadUrl: '/site/file-upload-single'
     });
 
 
     typeInput = "";
     $("#btn_upload_ACM").click(function(){
+        typeFile = "CSV";
         newDoc = {"fileName":"-", "type":"ACM", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         typeInput = "dump";
         $("#modalUpload").modal("show");
@@ -436,10 +492,20 @@ $(document).ready(function() {
     
     
     $("#btn_upload_IEEE").click(function(){
+        typeFile = "CSV";
         newDoc = {"fileName":"-", "type":"IEEE", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         typeInput = "dump";
         $("#modalUpload").modal("show");
     });
+    
+    
+    $("#btn_upload_Springer").click(function(){
+        typeFile = "CSV";
+        newDoc = {"fileName":"-", "type":"Springer", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
+        $("#modalUpload").modal("show");
+    });
+    
     
 
     // ---- modal details
@@ -1286,6 +1352,134 @@ $(document).ready(function() {
         $("#modalPublication").modal("show");
         
     });
+    
+    
+    
+    
+    /// ---- upload bibtex
+    
+    $("#btn_upload_SCD").click(function(){
+        typeFile = "BibTex";
+        newDoc = {"fileName":"-", "type":"SCD", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
+        $("#modalUpload").modal("show");
+    });
+    
+    
+    textBetween = function(txt,ch1,ch2){
+        console.log(["--->","txt",txt,"ch1:",ch1,"ch2:",ch2]);
+        if (txt.length == 0){return "";}
+        var ppi = 0;
+        var found = false;
+        var begin = false;
+        if (ch1 == "\n"){  // if the start char is \n then start the text from the beggining
+            begin = true;
+        }
+        var ss = "";
+        while (!found && ppi < txt.length){
+            if (begin==false && txt[ppi] == ch1){
+                begin = true;
+            }
+            else if (begin==true){
+                if (txt[ppi] == ch2){
+                    return ss;
+                }
+                ss = ss.concat(txt[ppi]);
+            }
+            ppi = ppi +1;
+        }
+        return ss;
+    }
+    
+    parseTextInputBibTex = function(){
+        var text = undefined;
+        if (textFromUpload == undefined){
+            text = $("#inDoc").val();
+        } else{
+          text = textFromUpload;
+          textFromUpload = undefined;
+        }
+        
+        // in the case of automatic identifier needed
+        var randd = parseInt(Math.random()*10000);
+        var randd_ = randd.toString();
+        
+        
+        //meta-data
+        var dname = $("#inName").val();if (dname == undefined){dname = "";}
+        var ddescription = $("#inDescription").val();if (ddescription == undefined){ddescription = "";}
+        var dquery = $("#inQuery").val();if (dquery == undefined){dquery = "";}
+        
+        newDoc["name"] = dname;
+        newDoc["description"] = ddescription;
+        newDoc["searchQuery"] = dquery;
+        var T = type2bibtexchr[newDoc["type"]];
+        console.log(["T:",T]);
+        //
+        var Rt = {}; // counting by type
+        
+        // parsing
+        var L = text.split("\n");
+        var cant = 0;
+        //console.log(["Keys:",Object.keys(D)]);
+        //console.log(["max:",_max(Object.keys(D))]);
+        //var newidDoc = _max(Object.keys(D))+1;
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        var newPub = {};
+        for (i in L){
+            var l = trim_1(L[i]);
+            if (l == ""){continue;}
+            
+            //start publication
+            if (l[0] == "@"){                
+                var ptype =  textBetween(l,"@","{");
+                newPub = {"type":ptype};               
+                if (ptype in Rt){
+                    Rt[ptype] = Rt[ptype] + 1;                
+                }
+                else{
+                    Rt[ptype] = 1;
+                }
+            }
+            else if (l == "}"){  // ---- end of the publication
+                //if there is autonumeric
+                var cc = cant+100001;                
+                newPub["id"] = randd_.concat(cc.toString());
+                
+                
+                newPub["meta:tags"] = 0; // etiqueta por las que se filtra
+                newPub["meta:iddoc"] = newidDoc;
+                newDoc["content"].push(newPub);
+                cant = cant + 1;
+            }
+            else{  // into the publication data
+                console.log("---------------");
+                console.log(["l:",l]);
+                var key = trim_1(textBetween(l,"\n","="));
+                console.log(["key:",key]);
+                var val = trim_1(textBetween(l,T["start"],T["end"]));
+                console.log(["val:",val]);
+                newPub[key] = val;
+            }
+        }
+        
+        newDoc["fileName"] = tempFileInput;
+        newDoc["timeUpload"]= new Date().toLocaleTimeString();
+        newDoc["dateUpload"]= new Date().toLocaleDateString();
+        //newDoc["repited"] = invert_counting(Rr);
+        newDoc["typePubl"] = jQuery.extend({}, Rt);
+        newDoc["length"] = cant;
+        D[newidDoc] = newDoc;
+
+       //Update table
+       updateMainTable();
+    }
+    
+    
     
     
 });
