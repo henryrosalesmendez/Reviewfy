@@ -1351,6 +1351,7 @@ $(document).ready(function() {
         }
         $("#modalPublication").modal("show");
         
+        
     });
     
     
