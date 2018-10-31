@@ -1167,22 +1167,22 @@ $(document).ready(function() {
         
         
         var dumpItem = xmlDoc.getElementsByTagName("dumpItem");
-        console.log(["dumpItem",dumpItem]);
-        console.log(["len:",dumpItem.length]);
+        //console.log(["dumpItem",dumpItem]);
+        //console.log(["len:",dumpItem.length]);
         
         //for (di in dumpItem){
         //for (var di = 0; di < dumpItem.childNodes.length; di++){
         for (var di = 0; di < dumpItem.length; di++){
             //var dump = dumpItem.childNodes.item(di);
             var dump = dumpItem[di];
-            console.log("--- new doc ---");
+            //console.log("--- new doc ---");
             
             newDoc = {};
             for (var j = 0; j < dump.attributes.length; j++) {
                 var attribute = dump.attributes.item(j);
                 newDoc[attribute.nodeName] = attribute.nodeValue;
             }
-            console.log(["newDoc:",newDoc]);
+            //console.log(["newDoc:",newDoc]);
             
             
             if (dump.hasChildNodes()) {
@@ -1203,10 +1203,10 @@ $(document).ready(function() {
                                 var _k = dd["key"];
                                 var _v = dd["value"];
                                 rdic[parseInt(_k)] = parseInt(_v);
-                                console.log(["_k:",_k]);
-                                console.log(["_v:",_v]);
+                                //console.log(["_k:",_k]);
+                                //console.log(["_v:",_v]);
                             }
-                            console.log(["rdic:",rdic]);
+                            //console.log(["rdic:",rdic]);
                             //alert("time");
                             newDoc["repited"] = rdic;
                         }                        
@@ -1225,10 +1225,10 @@ $(document).ready(function() {
                                 var _k = dd["key"];
                                 var _v = dd["value"];
                                 tdic[_k] = parseInt(_v);
-                                console.log(["_k:",_k]);
-                                console.log(["_v:",_v]);
+                                //console.log(["_k:",_k]);
+                                //console.log(["_v:",_v]);
                             }
-                            console.log(["tdic:",tdic]);
+                            //console.log(["tdic:",tdic]);
                             //alert("time2");
                             newDoc["typePubl"] = tdic;
                         }
@@ -1249,11 +1249,11 @@ $(document).ready(function() {
                                     var _k = dd["key"];
                                     var _v = dd["value"];
                                     P[_k] = _v;
-                                    console.log(["_k:",_k]);
-                                    console.log(["_v:",_v]);
+                                    //console.log(["_k:",_k]);
+                                    //console.log(["_v:",_v]);
                                     //alert("time3");
                                 }
-                                console.log(["P:",P]);
+                                //console.log(["P:",P]);
                                 content.push(P);
                             }
                             
@@ -1262,7 +1262,7 @@ $(document).ready(function() {
                     }
                 }
             } 
-            console.log(newDoc);
+            //console.log(newDoc);
             D[newDoc["id"]] = newDoc;
         }
         updateMainTable();
