@@ -215,7 +215,8 @@ $(document).ready(function() {
        "ACM": "primary",
        "IEEE": "success",
        "SCD": "warning",
-       "Springer": "info"
+       "Springer": "info",
+       "CMP": "default"
    };
    
    updateMainTable = function(){
@@ -600,7 +601,7 @@ $(document).ready(function() {
     getPub = function(idd,idc){
         var doc = D[idd];
         for (i in doc["content"]){
-            pub = doc["content"][i];
+            pub = CAST(doc["content"][i]);
             if (pub["id"] == idc){
                 return pub;
             }
@@ -638,7 +639,25 @@ $(document).ready(function() {
     }
     
     
+    // I'm including the the comparison  as document, but I just store the references to the publication to avoid duplicity and save space in memory.
+    // So, some documents going to have real, and other references data. Here I unify the access to this publication
+    CAST = function(_pub){
+        if ("meta:ref_idd" in _pub){
+            var _iddoc = _pub["meta:ref_idd"];
+            var _idp = _pub["meta:ref_idp"];
+            var _index  = idpub2index(_iddoc,_idp);
+            if (_index == -1){
+                return _pub;
+            }
+            return D[_iddoc]["content"][_index];
+        }
+        return _pub;
+    }
+    
+    
+    
     showContent = function(){
+        console.log("showContent");
         var idd = activeDoc;
         $("#content_table").empty();
         
@@ -676,7 +695,8 @@ $(document).ready(function() {
         }
         
         for (i in doc["content"]){
-            var pub = doc["content"][i];
+            var pub = CAST(doc["content"][i]);
+
             
             // filtering
             if (filterList.length != 0){
@@ -710,7 +730,7 @@ $(document).ready(function() {
                                     '<option '+sel[3]+'value="3">maybe</option>'+
                             '</select>'+
                         '</td>'+
-                        '<td>'+actions+'</td>'+
+                        '<td style="text-align:right">'+actions+'</td>'+
                     '</tr>');
             pos = pos +1 ;
         }
@@ -834,11 +854,11 @@ $(document).ready(function() {
         // contructing super set of others
         var So = new Set();
         if (type != "1*-1*"){
-            console.log("here");
+            //console.log("here");
             for (x in list_of_other){
                 xdoc = D[list_of_other[x]];
                 for (y in xdoc["content"]){
-                    ypub = xdoc["content"][y];
+                    ypub = CAST(xdoc["content"][y]);
                     if (ypub[attr] != ""){
                         So.add(ypub[attr]);                        
                     }
@@ -850,7 +870,7 @@ $(document).ready(function() {
         IDs = []
         if (type == "1-0"){
             for (y in doc["content"]){
-                ypub = doc["content"][y];
+                ypub = CAST(doc["content"][y]);
                 if (ypub[attr]!="" && So.has(ypub[attr]) == false){
                     IDs.push(ypub);
                 }
@@ -858,7 +878,7 @@ $(document).ready(function() {
         }
         else if (type == "1-1"){  // intersection of the target with the union of the others
            for (y in doc["content"]){
-                ypub = doc["content"][y];
+                ypub = CAST(doc["content"][y]);
                 if (ypub[attr]!="" && So.has(ypub[attr]) == true){
                     IDs.push(ypub);
                 }
@@ -881,7 +901,7 @@ $(document).ready(function() {
                 var xdoc = L[ix];
                 console.log(["xdoc:",xdoc]);
                 for (y in D[xdoc]["content"]){
-                    ypub = D[xdoc]["content"][y];
+                    ypub = CAST(D[xdoc]["content"][y]);
                     if (ypub[attr]!="" && S_target.has(ypub[attr]) && !(already.has(ypub[attr]))){
                         IDs.push(ypub);
                         already.add(ypub[attr]);
@@ -892,7 +912,7 @@ $(document).ready(function() {
         else if (type == "0-1"){
             var S = new Set();
             for (y in doc["content"]){
-                ypub = doc["content"][y];
+                ypub = CAST(doc["content"][y]);
                 if (ypub[attr]!=""){
                     S.add(ypub[attr]);                    
                 }
@@ -908,6 +928,19 @@ $(document).ready(function() {
         }
 
         return IDs;
+    }
+    
+    
+    
+    countNum = function(typedoc){
+        var count = 1;
+        for (var tt1 in D){
+            var _doc = D[tt1];
+            if (_doc["type"] == typedoc){
+                count = count + 1;
+            }
+        }
+        return count;
     }
     
     
@@ -952,7 +985,7 @@ $(document).ready(function() {
         var other_str = list_of_other.join(",");
         
         
-        
+        /*
         var doc = operation_doc(type,list_of_other);
         var pos = 1;
         for (i in doc){
@@ -989,7 +1022,44 @@ $(document).ready(function() {
         $("#spanDocName").html("("+pos+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str);
         apply_on_change_to_selects();
         show_with_out_filter();
+        */
+        
+        
+        var doc = operation_doc(type,list_of_other);
+        //{1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}, "length":50, "description":"ABABAB", "content":["id"]} };        
+
+        var num_cmp = countNum("CMP");
+        newDoc = {"fileName":"-", "type":"CMP", "name":"Comparison #"+num_cmp,"searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":doc.length, "description":"", "content":[]};
+        newDoc["timeUpload"]= new Date().toLocaleTimeString();
+        newDoc["dateUpload"]= new Date().toLocaleDateString();
+        newDoc["searchQuery"] = "("+doc.length+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str;
+        
+        for (o in doc){
+            var pub = doc[o];
+            newDoc["content"].push({
+                "meta:ref_idd":pub["meta:iddoc"],
+                "meta:ref_idp":pub["id"]                
+            });
+        }
+        
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        
+        console.log(["newidDoc:",newidDoc]);
+        D[newidDoc] = newDoc;
+        activeDoc = newidDoc;
+        
+        //update Content table
+        showContent();
+        
+        // hide the modal
         $('#modalDifference').modal("hide");
+        
+        //Update main table
+        updateMainTable();
     }
     
     
@@ -1306,7 +1376,8 @@ $(document).ready(function() {
                 cssClass: 'btn-primary',
                 label: 'Yes',
                 action: function(dialog) {
-                    //--
+                    //--                    
+                    unreferencing(idd);
                     delete D[idd];
                     updateMainTable();
                     hide_all();
@@ -1364,6 +1435,10 @@ $(document).ready(function() {
     
     /// ----- Comment of the publication
     idpub2index = function(idd,idp){
+        if (!(idd in D)){
+            return -1;
+        }
+        
         for (ii in D[idd]["content"]){
             var pub = D[idd]["content"][ii];
             if (pub["id"] == idp){
@@ -1530,7 +1605,32 @@ $(document).ready(function() {
     }
     
     
-    
+    //---- 
+    // This method is used when yoy have comparison with publication referencing to others (to save space in RAM), and then you wants to eliminate the source document,
+    // Here, we put a copy of each publication of the document in process of deleting in the comparison document.
+    unreferencing = function(_idd){
+        for (var tt in D){
+            var _d = D[tt];
+            if (tt == _idd){
+                continue;                
+            }
+            
+            if (_d["type"] == "CMP"){
+                for (var ll in _d["content"]){
+                    var _p = _d["content"][ll];
+                    if ("meta:ref_idd" in _p){
+                        var _iddoc = _p["meta:ref_idd"];                
+                        if (_iddoc == _idd){
+                            var _idp = _p["meta:ref_idp"];
+                            var _ind  = idpub2index(_iddoc,_idp);
+                            D[tt]["content"][ll] = D[_idd]["content"][_ind];
+                        }
+                        
+                    }
+                }                
+            }
+        }
+    }
     
 });
 
