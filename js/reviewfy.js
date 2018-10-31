@@ -624,7 +624,7 @@ $(document).ready(function() {
             
             for (i in ListTaxonomy){
                 var l = ListTaxonomy[i];
-                console.log(["l:",l,'l["text"]:',l["text"],'tag2color[l["text"]]:',tag2color[l["text"]]]);
+                //console.log(["l:",l,'l["text"]:',l["text"],'tag2color[l["text"]]:',tag2color[l["text"]]]);
                 $("#tr_cont_"+idc).removeClass(tag2color[l["text"]]);
             }
             
@@ -649,6 +649,7 @@ $(document).ready(function() {
                 '<th scope="col" style="width: 50px;">Year</th>'+
                 '<th scope="col">Title</th>'+
                 '<th scope="col">Authors</th>'+
+                '<th scope="col">Comments</th>'+
                 '<th scope="col">Tags</th>'+
                 '<th scope="col"></th> '+
             '</tr>'+
@@ -686,15 +687,21 @@ $(document).ready(function() {
             var sel=["","","",""];
             sel[pub["meta:tags"]] = 'selected="selected"';
             
+            var pub_comments = "";
+            if ("meta:comment" in pub){
+                pub_comments = pub["meta:comment"];
+            }
+            
             // contructing table
-            var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>';
+            var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>'+
+                           '<button class="btn btn-secondary btnCommentPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Add/Edit the comments"><i class="glyphicon glyphicon-comment"></i></button>';
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
                         '<td>'+pub["id"]+'</td>'+
                         '<td>'+pub["year"]+'</td>'+
                         '<td>'+pub["title"]+'</td>'+
                         '<td>'+pub["author"]+'</td>'+
-                        //'<td><input type="text" style="width:100%!important;min-width: 100px!important;" idd="'+pub["id"]+'" id="taxonomy'+pub["id"]+'" class="taxonomyPubs"/></td>'+
+                        '<td>'+pub_comments+'</td>'+
                         '<td>'+
                             '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
                                     '<option '+sel[0]+' value="0">-</option>'+
@@ -1353,6 +1360,48 @@ $(document).ready(function() {
         
         
     });
+    
+    
+    /// ----- Comment of the publication
+    idpub2index = function(idd,idp){
+        for (ii in D[idd]["content"]){
+            var pub = D[idd]["content"][ii];
+            if (pub["id"] == idp){
+                return ii;
+            }
+        }
+        return -1;
+    }
+    
+    $(document).on('click', '.btnCommentPub', function () {
+        var idp = $(this).attr("idp");
+        var idd = $(this).attr("idd");
+        
+        var current_comment = "";
+        var _index = idpub2index(idd,idp);
+        var pub = D[idd]["content"][_index];
+        if ("meta:comment" in pub){
+            current_comment = pub["meta:comment"];
+        }
+        
+        $("#modalCommentInput").attr("idd",idd);
+        $("#modalCommentInput").attr("index",_index);
+        $("#modalCommentInput").val(current_comment);
+        $("#modalComment").modal("show");
+    });
+    
+    
+    $("#modalComment_upload").click(function(){
+        var idd = $("#modalCommentInput").attr("idd");
+        var _index = $("#modalCommentInput").attr("index");
+        
+        var current_comment = $("#modalCommentInput").val();
+        if (current_comment!=undefined && current_comment.length >0){
+           D[idd]["content"][_index]["meta:comment"] = current_comment;
+        }
+        showContent();
+    });
+    
     
     
     
