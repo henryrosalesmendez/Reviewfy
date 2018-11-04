@@ -1461,8 +1461,12 @@ $(document).ready(function() {
         
         $("#modalCommentInput").attr("idd",idd);
         $("#modalCommentInput").attr("index",_index);
-        $("#modalCommentInput").val(current_comment);
+        $("#modalCommentInput").val(current_comment);  
+        $('#modalComment').on('shown.bs.modal', function () {
+            $("#modalCommentInput").focus();
+        });
         $("#modalComment").modal("show");
+        
     });
     
     
