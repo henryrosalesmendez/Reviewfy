@@ -246,8 +246,15 @@ $(document).ready(function() {
            var ttt = '<span class="label label-'+type2color[d["type"]]+'">'+d["type"]+'</span>';
            var actions =  '<button class="btn btn-secondary btnEdit" type="button" idd="'+i+'" data-toggle="tooltip" title="Edit the data of this dump"><i class="glyphicon glyphicon-edit"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
+           
            actions = actions + '<button class="btn btn-secondary btnDelete" type="button" idd="'+i+'" data-toggle="tooltip" title="Delete this document"><i class="glyphicon glyphicon-erase"></i></button>';
+           
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
+           
+           if (d["type"] != "SCD"){
+                actions = actions + '<button class="btn btn-secondary btnDownloadAbstract" type="button" idd="'+i+'" data-toggle="tooltip" title="Get the abstract from the publisher"><i class="glyphicon glyphicon-import"></i></button>';
+           }
+           
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
            
            $("#doc_table").append('<tr id="tr'+i+'"><td>'+ttt+'</td><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
@@ -666,7 +673,7 @@ $(document).ready(function() {
                 //'<th scope="col" style="width: 150px;">ID</th>'+
                 '<th scope="col" style="width: 50px;">Year</th>'+
                 '<th scope="col">Title</th>'+
-                '<th scope="col">Authors</th>'+
+                '<th width="10%" scope="col">Authors</th>'+
                 '<th scope="col">Abstract</th>'+
                 '<th scope="col">Comments</th>'+
                 '<th scope="col">Tags</th>'+
@@ -713,15 +720,21 @@ $(document).ready(function() {
             }
             
             // contructing table
-            var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>'+
-                           '<button class="btn btn-secondary btnCommentPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Add/Edit the comments"><i class="glyphicon glyphicon-comment"></i></button>';
+            var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>'+ 
+            
+            (("meta:final_doi" in pub)? '<button class="btn btn-secondary" type="button" onclick="window.open(\''+pub["meta:final_doi"]+'\',\'_blank\')" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-link"></i></button>':'')+
+            
+            '<button class="btn btn-secondary btnDeletePub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Delete this publication"><i class="glyphicon glyphicon-trash"></i></button>' +
+            
+            '<button class="btn btn-secondary btnCommentPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Add/Edit the comments"><i class="glyphicon glyphicon-comment"></i></button>';
+                           
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
                         //'<td>'+pub["id"]+'</td>'+
                         '<td>'+pub["year"]+'</td>'+
                         '<td>'+pub["title"]+'</td>'+
                         '<td>'+pub["author"]+'</td>'+
-                        '<td>'+pub["abstract"]+'</td>'+
+                        '<td>'+((pub["abstract"]!=undefined)?pub["abstract"]:"")+'</td>'+
                         '<td>'+pub_comments+'</td>'+
                         '<td>'+
                             '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
@@ -1564,7 +1577,6 @@ $(document).ready(function() {
         var globalValue = "";
         for (i in L){
             var l = L[i];//trim_1(L[i]);
-            console.log(["l:",l]);
             if (trim_1(l) == ""){continue;}
             if (status == 0){  // only one line              
                 
@@ -1591,24 +1603,16 @@ $(document).ready(function() {
                     cant = cant + 1;
                 }
                 else{  // into the publication data
-                    console.log("---------------");
-                    console.log(["l:",l]);
                     var key = trim_1(textBetween(l,"\n","="));
-                    console.log(["key:",key]);
                     var val = textBetween(l,T["start"],T["end"]);
-                    console.log(["val:",val]);
                     var l_rest = l.substring(l.indexOf(T["start"])+1,l.length+1);
-                    console.log(["l_rest:",l_rest]);
                     if (l_rest.indexOf(T["end"]) == -1){
                         status = 1;
                         globalKey = key;
-                        console.log(["settig key:",key]);
                         globalValue = globalValue + val;
-                        console.log(["setting val:",val]);
                     }
                     else{                        
                         newPub[key] = trim_1(val);
-                        console.log(":(");
                     }
                 }
             }
@@ -1616,13 +1620,9 @@ $(document).ready(function() {
                 // long fields such as the abstract that have more than one line
                 if (l.indexOf(T["end"]) == -1){
                     var val = textBetween(l,"\n",T["end"]);
-                    console.log(["val2:",val]);
                     globalValue = globalValue + "<br>" +trim_1(val);
                 }
                 else{         
-                    console.log("--------->here");
-                    console.log(["globalKey:",globalKey]);
-                    console.log(["globalValue:",globalValue]);
                     newPub[globalKey] = trim_1(globalValue);
                     status = 0;
                 }
@@ -1668,6 +1668,63 @@ $(document).ready(function() {
             }
         }
     }
+    
+    
+    
+    ////--- downloading the abstracts
+    
+    //-- 
+    finalDoi = function(type_doc,pub){
+        if (type_doc == "ACM"){
+            return "https://doi.org/"+pub["doi"]; 
+        }
+        return "";
+    }
+    
+    //--
+    $(document).on('click', '.btnDownloadAbstract', function () {
+        var idd = $(this).attr("idd");
+        for (var i in D[idd]["content"]){
+            var pub = D[idd]["content"][i];
+            
+            // find the doi 
+            var doi = finalDoi(D[idd]["type"], pub);
+            D[idd]["content"][i]["meta:final_doi"] = doi;
+        }
+        
+        if (idd == activeDoc){
+            showContent();
+        }
+    });
+    
+    
+    ///-- Deleting a publication
+
+    $(document).on('click', '.btnDeletePub', function () {
+        var id_pub = $(this).attr("idp");
+        var id_doc = $(this).attr("idd");
+        BootstrapDialog.show({
+            title: 'Removing publication',
+            message: 'Are you sure you want to delete the publication form the list?',
+            buttons: [{
+                cssClass: 'btn-primary',
+                label: 'Yes',
+                action: function(dialog) {
+                    var index = idpub2index(id_doc, id_pub);
+                    console.log(["id_doc:",id_doc,"  index:",index]);
+                    D[id_doc]["content"].splice(index, 1);
+                    showContent();
+                    dialog.close();
+                }
+            }, {
+                label: 'No',
+                action: function(dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+    });
+    
     
 });
 
