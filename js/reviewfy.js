@@ -1713,6 +1713,8 @@ $(document).ready(function() {
                     var index = idpub2index(id_doc, id_pub);
                     console.log(["id_doc:",id_doc,"  index:",index]);
                     D[id_doc]["content"].splice(index, 1);
+                    D[id_doc]["length"] = parseInt(D[id_doc]["length"]) -1;
+                    updateMainTable();
                     showContent();
                     dialog.close();
                 }
