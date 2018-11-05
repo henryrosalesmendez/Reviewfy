@@ -655,19 +655,19 @@ $(document).ready(function() {
     }
     
     
-    
+    columnsListDisplay = []
     showContent = function(){
-        console.log("showContent");
         var idd = activeDoc;
         $("#content_table").empty();
         
         var html_table = '<thead>'+
             '<tr>'+
                 '<th scope="col" style="width: 50px;">#</th>'+
-                '<th scope="col" style="width: 150px;">ID</th>'+
+                //'<th scope="col" style="width: 150px;">ID</th>'+
                 '<th scope="col" style="width: 50px;">Year</th>'+
                 '<th scope="col">Title</th>'+
                 '<th scope="col">Authors</th>'+
+                '<th scope="col">Abstract</th>'+
                 '<th scope="col">Comments</th>'+
                 '<th scope="col">Tags</th>'+
                 '<th scope="col"></th> '+
@@ -717,10 +717,11 @@ $(document).ready(function() {
                            '<button class="btn btn-secondary btnCommentPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Add/Edit the comments"><i class="glyphicon glyphicon-comment"></i></button>';
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
-                        '<td>'+pub["id"]+'</td>'+
+                        //'<td>'+pub["id"]+'</td>'+
                         '<td>'+pub["year"]+'</td>'+
                         '<td>'+pub["title"]+'</td>'+
                         '<td>'+pub["author"]+'</td>'+
+                        '<td>'+pub["abstract"]+'</td>'+
                         '<td>'+pub_comments+'</td>'+
                         '<td>'+
                             '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
@@ -1496,7 +1497,6 @@ $(document).ready(function() {
     
     
     textBetween = function(txt,ch1,ch2){
-        console.log(["--->","txt",txt,"ch1:",ch1,"ch2:",ch2]);
         if (txt.length == 0){return "";}
         var ppi = 0;
         var found = false;
@@ -1559,40 +1559,73 @@ $(document).ready(function() {
             newidDoc = parseInt(Akey[Akey.length-1])+1;
         }
         var newPub = {};
+        var satus = 0;
+        var globalKey = "";
+        var globalValue = "";
         for (i in L){
-            var l = trim_1(L[i]);
-            if (l == ""){continue;}
-            
-            //start publication
-            if (l[0] == "@"){                
-                var ptype =  textBetween(l,"@","{");
-                newPub = {"type":ptype};               
-                if (ptype in Rt){
-                    Rt[ptype] = Rt[ptype] + 1;                
+            var l = L[i];//trim_1(L[i]);
+            console.log(["l:",l]);
+            if (trim_1(l) == ""){continue;}
+            if (status == 0){  // only one line              
+                
+                //start publication
+                if (l[0] == "@"){                
+                    var ptype =  textBetween(l,"@","{");
+                    newPub = {"type":ptype};               
+                    if (ptype in Rt){
+                        Rt[ptype] = Rt[ptype] + 1;                
+                    }
+                    else{
+                        Rt[ptype] = 1;
+                    }
                 }
-                else{
-                    Rt[ptype] = 1;
+                else if (l == "}"){  // ---- end of the publication
+                    //if there is autonumeric
+                    var cc = cant+100001;                
+                    newPub["id"] = randd_.concat(cc.toString());
+                    
+                    
+                    newPub["meta:tags"] = 0; // etiqueta por las que se filtra
+                    newPub["meta:iddoc"] = newidDoc;
+                    newDoc["content"].push(newPub);
+                    cant = cant + 1;
+                }
+                else{  // into the publication data
+                    console.log("---------------");
+                    console.log(["l:",l]);
+                    var key = trim_1(textBetween(l,"\n","="));
+                    console.log(["key:",key]);
+                    var val = textBetween(l,T["start"],T["end"]);
+                    console.log(["val:",val]);
+                    var l_rest = l.substring(l.indexOf(T["start"])+1,l.length+1);
+                    console.log(["l_rest:",l_rest]);
+                    if (l_rest.indexOf(T["end"]) == -1){
+                        status = 1;
+                        globalKey = key;
+                        console.log(["settig key:",key]);
+                        globalValue = globalValue + val;
+                        console.log(["setting val:",val]);
+                    }
+                    else{                        
+                        newPub[key] = trim_1(val);
+                        console.log(":(");
+                    }
                 }
             }
-            else if (l == "}"){  // ---- end of the publication
-                //if there is autonumeric
-                var cc = cant+100001;                
-                newPub["id"] = randd_.concat(cc.toString());
-                
-                
-                newPub["meta:tags"] = 0; // etiqueta por las que se filtra
-                newPub["meta:iddoc"] = newidDoc;
-                newDoc["content"].push(newPub);
-                cant = cant + 1;
-            }
-            else{  // into the publication data
-                console.log("---------------");
-                console.log(["l:",l]);
-                var key = trim_1(textBetween(l,"\n","="));
-                console.log(["key:",key]);
-                var val = trim_1(textBetween(l,T["start"],T["end"]));
-                console.log(["val:",val]);
-                newPub[key] = val;
+            else{
+                // long fields such as the abstract that have more than one line
+                if (l.indexOf(T["end"]) == -1){
+                    var val = textBetween(l,"\n",T["end"]);
+                    console.log(["val2:",val]);
+                    globalValue = globalValue + "<br>" +trim_1(val);
+                }
+                else{         
+                    console.log("--------->here");
+                    console.log(["globalKey:",globalKey]);
+                    console.log(["globalValue:",globalValue]);
+                    newPub[globalKey] = trim_1(globalValue);
+                    status = 0;
+                }
             }
         }
         
