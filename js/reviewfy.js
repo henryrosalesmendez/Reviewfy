@@ -670,7 +670,6 @@ $(document).ready(function() {
     }
     
     CAST_idd_index = function(idd,index){
-        console.log(["idd:",idd,"  index:",index]);
         var __pub = D[idd]["content"][index];
         if ("meta:ref_idd" in __pub){
             var _iddoc = _pub["meta:ref_idd"];
@@ -1769,10 +1768,14 @@ $(document).ready(function() {
             warning_alert("Error: " + json_response["error"]);
         }
         else{
-            //var ind = idpub2index(idd,_index);
-            console.log(["abstract:",json_response["response"]]);
             D[idd]["content"][_index]["abstract"] = json_response["response"];
         }
+    }
+    
+    //-
+    update_block_caption = function(id_div,progress,total){
+        var porc = parseInt((progress*100)/total);
+        $("#"+id_div).html("Progress: "+porc+"%");
     }
     
     //--
@@ -1792,9 +1795,9 @@ $(document).ready(function() {
             
             var doi = finalDoi(D[o_iddoc]["type"], pub);
             if (doi != ""){
-                console.log(["finalDoi:",doi]);
+                update_block_caption('downloading_abstracts',current_index,D[current_iddoc]["content"].length);
                 D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
-                console.log(["--REQUESTIN.."," current_iddoc:",current_iddoc,"  current_index:",current_index]);
+
                 $.ajax({
                     //data:params,
                     data:{"values":{
@@ -1806,7 +1809,7 @@ $(document).ready(function() {
                     dataType: "html",
                     beforeSend: function(){},
                     success: function(response){
-                        console.log(["response:",response]);
+                        //console.log(["response:",response]);
                         add_abstract_to_pub(current_iddoc,current_index,response);                    
                         sincronism_ajax(current_iddoc,current_index+1);
                     },
@@ -1827,8 +1830,39 @@ $(document).ready(function() {
     //--
     $(document).on('click', '.btnDownloadAbstract', function () {
         var idd = $(this).attr("idd");
-        $.blockUI({ message: null });
-        sincronism_ajax(idd,0);
+        BootstrapDialog.show({
+            title: 'Gettings the abstracts',
+            message: 'Are you sure? This action can take a long time.',
+            buttons: [{
+                cssClass: 'btn-primary',
+                label: 'Yes',
+                action: function(dialog) {
+                    //-                    
+                    //$.blockUI({ message: null });
+                    $.blockUI( {
+                            message: '<div id="downloading_abstracts">Progreso: 0%</div>',
+                            css: { 
+                                border: 'none', 
+                                padding: '15px', 
+                                backgroundColor: '#000', 
+                                '-webkit-border-radius': '10px', 
+                                '-moz-border-radius': '10px', 
+                                opacity: .5, 
+                                color: '#fff' 
+                            }
+                        }
+                    );
+                    sincronism_ajax(idd,0);
+                    //-
+                    dialog.close();
+                }
+            }, {
+                label: 'No',
+                action: function(dialog) {
+                    dialog.close();
+                }
+            }]
+        });
     });
     
     
@@ -2029,7 +2063,6 @@ $(document).ready(function() {
         
         showContent();        
     });
-    
     
     
     
