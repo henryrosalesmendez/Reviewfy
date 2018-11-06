@@ -742,10 +742,7 @@ $(document).ready(function() {
             var sel=["","","",""];
             sel[pub["meta:tags"]] = 'selected="selected"';
             
-            var pub_comments = "";
-            if ("meta:comment" in pub){
-                pub_comments = pub["meta:comment"];
-            }
+            
             
             // contructing table
             var actions =  '<button class="btn btn-secondary btnDetailsPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Details of this publication"><i class="glyphicon glyphicon-th"></i></button>'+ 
@@ -779,6 +776,15 @@ $(document).ready(function() {
                     _abstract = pub_r["meta:filter"];
                 }
             }
+            
+            var _comment = "";
+            if ("meta:comment" in pub){
+                _comment  = pub["meta:comment"];
+                if (column_filtered == "meta:comment"){
+                    _comment = pub_r["meta:filter"];
+                }
+            }
+            
 
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
@@ -787,7 +793,7 @@ $(document).ready(function() {
                         '<td>'+_title+'</td>'+
                         '<td>'+_author+'</td>'+
                         '<td>'+_abstract+'</td>'+
-                        '<td>'+pub_comments+'</td>'+
+                        '<td>'+_comment+'</td>'+
                         '<td>'+
                             '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
                                     '<option '+sel[0]+' value="0">-</option>'+
@@ -1957,7 +1963,7 @@ $(document).ready(function() {
         }
         else if (fField.indexOf("exact@")!=-1){
             //var pattr = "[ \n.,-]"+low_f+"[ \n.,-]";
-            var pattr = "[ \n.,-]"+low_f+"[ \n.,-]|^"+low_f+"[ \n.,-]|[ \n.,-]"+low_f+"$|^to$";
+            var pattr = "[ \n.,-]"+low_f+"[ \n.,-]|^"+low_f+"[ \n.,-]|[ \n.,-]"+low_f+"$|^"+low_f+"$";
             var myRe = new RegExp(pattr,'g');
             var sol = myRe.exec(low_pub);
             if (sol != null){
