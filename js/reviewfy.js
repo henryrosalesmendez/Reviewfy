@@ -669,6 +669,20 @@ $(document).ready(function() {
         return _pub;
     }
     
+    CAST_idd_index = function(idd,index){
+        console.log(["idd:",idd,"  index:",index]);
+        var __pub = D[idd]["content"][index];
+        if ("meta:ref_idd" in __pub){
+            var _iddoc = _pub["meta:ref_idd"];
+            var _idp = _pub["meta:ref_idp"];
+            var _index  = idpub2index(_iddoc,_idp);
+            if (_index == -1){
+                return [_idp,_index];
+            }
+        }
+        return [idd,index];
+    }
+    
     
     columnsListDisplay = []
     showContent = function(){
@@ -1742,26 +1756,79 @@ $(document).ready(function() {
     
     //-- 
     finalDoi = function(type_doc,pub){
-        if (type_doc == "ACM"){
+        if (type_doc == "ACM" && "doi" in pub && pub["doi"]!=undefined && pub["doi"].length!=0){
             return "https://doi.org/"+pub["doi"]; 
         }
         return "";
     }
     
+    //
+    add_abstract_to_pub = function(idd,_index,response){
+        var json_response = JSON.parse(trim_1(response));
+        if ("error" in json_response){
+            warning_alert("Error: " + json_response["error"]);
+        }
+        else{
+            //var ind = idpub2index(idd,_index);
+            console.log(["abstract:",json_response["response"]]);
+            D[idd]["content"][_index]["abstract"] = json_response["response"];
+        }
+    }
+    
+    //--
+    sincronism_ajax = function(current_iddoc,current_index){
+        if (current_index == D[current_iddoc]["content"].length){
+            if (current_iddoc == activeDoc){
+                showContent();
+            }
+            $.unblockUI();
+        }
+        else{
+            //var pub = CAST(D[idd]["content"][i]);
+            var ccast = CAST_idd_index(current_iddoc,current_index);
+            var o_iddoc = ccast[0];
+            var o_idpub = ccast[1];
+            var pub = D[o_iddoc]["content"][o_idpub];
+            
+            var doi = finalDoi(D[o_iddoc]["type"], pub);
+            if (doi != ""){
+                console.log(["finalDoi:",doi]);
+                D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
+                console.log(["--REQUESTIN.."," current_iddoc:",current_iddoc,"  current_index:",current_index]);
+                $.ajax({
+                    //data:params,
+                    data:{"values":{
+                        "doi":doi,
+                        "library":D[o_iddoc]["type"]
+                    }},
+                    url: 'gettingabstracts.php',
+                    type: 'POST',
+                    dataType: "html",
+                    beforeSend: function(){},
+                    success: function(response){
+                        console.log(["response:",response]);
+                        add_abstract_to_pub(current_iddoc,current_index,response);                    
+                        sincronism_ajax(current_iddoc,current_index+1);
+                    },
+                    error: function(response){
+                        //warning_alert("There were errors in the system API");
+                        //$.unblockUI();
+                        //return false;
+                        sincronism_ajax(current_iddoc,current_index+1);
+                    }
+                });            
+            }
+            else{
+                sincronism_ajax(current_iddoc,current_index+1);
+            }
+        }        
+    }
+    
     //--
     $(document).on('click', '.btnDownloadAbstract', function () {
         var idd = $(this).attr("idd");
-        for (var i in D[idd]["content"]){
-            var pub = D[idd]["content"][i];
-            
-            // find the doi 
-            var doi = finalDoi(D[idd]["type"], pub);
-            D[idd]["content"][i]["meta:final_doi"] = doi;
-        }
-        
-        if (idd == activeDoc){
-            showContent();
-        }
+        $.blockUI({ message: null });
+        sincronism_ajax(idd,0);
     });
     
     
