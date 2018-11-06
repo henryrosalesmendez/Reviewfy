@@ -145,6 +145,7 @@ $(document).ready(function() {
     newDoc = {};
     // to filtering
     filterList = [];
+    column_filtered = "";
     // for BibTex
     type2bibtexchr = {
         "ACM":{"start":'{', "end":'}'},
@@ -687,7 +688,6 @@ $(document).ready(function() {
         $("#content_table").html(html_table);
         
         var doc = D[idd];
-        $("#spanDocName").html("("+doc["length"]+") Showing: "+doc["name"]);
         var M = Map[doc["type"]];
         var pos = 1;
 
@@ -703,11 +703,18 @@ $(document).ready(function() {
         
         for (i in doc["content"]){
             var pub = CAST(doc["content"][i]);
+            var pub_r = doc["content"][i];
 
             
             // filtering
             if (filterList.length != 0){
                 if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
+            }
+            if (column_filtered!=""){
+                //alert("here "+column_filtered);
+                if (!("meta:filter" in pub_r)){
+                    continue;
+                }
             }
             
             // selecting tag
@@ -727,28 +734,54 @@ $(document).ready(function() {
             '<button class="btn btn-secondary btnDeletePub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Delete this publication"><i class="glyphicon glyphicon-trash"></i></button>' +
             
             '<button class="btn btn-secondary btnCommentPub" type="button" idd="'+pub["meta:iddoc"]+'" idp="'+pub["id"]+'" data-toggle="tooltip" title="Add/Edit the comments"><i class="glyphicon glyphicon-comment"></i></button>';
-                           
+            
+            
+            var _year   = pub["year"];
+            if (column_filtered == "year"){
+                _year = pub_r["meta:filter"];
+            }
+            
+            var _title  = pub["title"];
+            if (column_filtered == "title"){
+                _title = pub_r["meta:filter"];
+            }
+            
+            var _author  = pub["author"];
+            if (column_filtered == "author"){
+                _author = pub_r["meta:filter"];
+            }
+            
+            var _abstract  = "";
+            if (pub["abstract"] != undefined){
+                _abstract = pub["abstract"];
+                if (column_filtered == "abstract"){
+                    _abstract = pub_r["meta:filter"];
+                }
+            }
+
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+'</td>'+
                         //'<td>'+pub["id"]+'</td>'+
-                        '<td>'+pub["year"]+'</td>'+
-                        '<td>'+pub["title"]+'</td>'+
-                        '<td>'+pub["author"]+'</td>'+
-                        '<td>'+((pub["abstract"]!=undefined)?pub["abstract"]:"")+'</td>'+
+                        '<td>'+_year+'</td>'+
+                        '<td>'+_title+'</td>'+
+                        '<td>'+_author+'</td>'+
+                        '<td>'+_abstract+'</td>'+
                         '<td>'+pub_comments+'</td>'+
                         '<td>'+
                             '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
                                     '<option '+sel[0]+' value="0">-</option>'+
-                                    '<option '+sel[1]+'value="1">include</option>'+
-                                    '<option '+sel[2]+'value="2">exclude</option>'+
-                                    '<option '+sel[3]+'value="3">maybe</option>'+
+                                    '<option '+sel[1]+' value="1">include</option>'+
+                                    '<option '+sel[2]+' value="2">exclude</option>'+
+                                    '<option '+sel[3]+' value="3">maybe</option>'+
                             '</select>'+
                         '</td>'+
                         '<td style="text-align:right">'+actions+'</td>'+
                     '</tr>');
             pos = pos +1 ;
         }
-
+        //$("#spanDocName").html("("+doc["length"]+") Showing: "+doc["name"]);
+        var pos_l = pos-1;
+        $("#spanDocName").html("("+pos_l+") Showing: "+doc["name"]);
         apply_on_change_to_selects();
     }
     
@@ -1726,6 +1759,143 @@ $(document).ready(function() {
             }]
         });
     });
+    
+    
+    //---   
+
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+
+
+    // --- filter by fields
+    fullfill_filter = function(fField, fText, pub){
+        var new_res = "";
+        if (pub[column_filtered]==undefined || pub[column_filtered]==""){
+            return -1;
+        }
+        
+        var low_pub = pub[column_filtered].toLowerCase();
+        var low_f = fText.toLowerCase();
+        if (fField.indexOf("substr@")!=-1){
+            if (low_pub.indexOf(low_f)!=-1){
+                new_res = replaceAll(low_pub,low_f,"<b style='color:#980020;'>"+low_f+"</b>");
+                return new_res;
+            } 
+            else{
+                return -1;
+            }
+        }
+        else if (fField.indexOf("exact@")!=-1){
+            //var pattr = "[ \n.,-]"+low_f+"[ \n.,-]";
+            var pattr = "[ \n.,-]"+low_f+"[ \n.,-]|^"+low_f+"[ \n.,-]|[ \n.,-]"+low_f+"$|^to$";
+            var myRe = new RegExp(pattr,'g');
+            var sol = myRe.exec(low_pub);
+            if (sol != null){
+                new_res = replaceAll(low_pub,low_f,"<b style='color:#980020;'>"+low_f+"</b>");
+                return new_res;
+            } 
+            else{
+                return -1;
+            }
+        }
+        else if (fField.indexOf("start@")!=-1){
+            var pattr = "[ \n.,-]"+low_f+"|^"+low_f;
+            var myRe = new RegExp(pattr,'g');
+            var sol = myRe.exec(low_pub);
+            if (sol != null){
+                new_res = replaceAll(low_pub,low_f,"<b style='color:#980020;'>"+low_f+"</b>");
+                return new_res;
+            } 
+            else{
+                return -1;
+            }
+        }
+        else if (fField.indexOf("equal@")!=-1){
+            if (low_f==undefined || !isNumber(low_f) || low_pub==undefined || !isNumber(low_pub)){
+                return -1;
+            }
+
+            if (low_f == low_pub){
+                return low_f;
+            } 
+            else{
+                return -1;
+            }
+        }
+        else if (fField.indexOf("gte@")!=-1){
+            if (low_f==undefined || !isNumber(low_f) || low_pub==undefined || !isNumber(low_pub)){
+                return -1;
+            }
+            
+            var _vf = parseInt(low_f);
+            var _vp = parseInt(low_pub);
+            if (_vf <= _vp){
+                return low_pub;
+            } 
+            else{
+                return -1;
+            }
+        }
+        else if (fField.indexOf("lte@")!=-1){
+            if (low_f==undefined || !isNumber(low_f) || low_pub==undefined || !isNumber(low_pub)){
+                return -1;
+            }
+            
+            var _vf = parseInt(low_f);
+            var _vp = parseInt(low_pub);
+            if (_vf >= _vp){
+                return low_pub;
+            } 
+            else{
+                return -1;
+            }
+        }
+        
+        
+        if (new_res == pub[column_filtered]){
+            return -1;
+        }
+        
+        return -1;
+    }
+    
+    //--
+    clearFilterText = function(){
+        for (pi in D[activeDoc]["content"]){
+            if ("meta:filter" in D[activeDoc]["content"][pi]){    
+                delete D[activeDoc]["content"][pi]["meta:filter"];
+            }
+        }
+    }
+    
+    
+    //--
+    $("#btnFilterText").click(function(){
+        var fText = $("#textFilter").val();
+        var fField = $("#selectFilterText").val();
+        clearFilterText();
+        
+        if (fText != undefined && fText!=""){
+            column_filtered = fField.split("@")[1];
+            
+            for (pi in D[activeDoc]["content"]){
+                var p = CAST(D[activeDoc]["content"][pi]);
+                var res = fullfill_filter(fField, fText, p);
+                if (res!=-1){    
+                    D[activeDoc]["content"][pi]["meta:filter"] = res;
+                }
+            }
+        }
+        else{
+            column_filtered = "";
+        }
+        
+        showContent();        
+    });
+    
+    
     
     
 });

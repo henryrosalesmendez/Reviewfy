@@ -94,16 +94,40 @@
         </div>
         
         <div class="col-lg-12 divContent hide divContent_without_filter"><br><span id="spanDocName"></span></div>
+        <!-- -->
+        <div class="col-lg-12 divContent hide">
+            <select id="selectFilterText" class="float-right" style="min-height: 30px;line-height: 1.42857143;height: 32px !important;">
+                <option selected="selected" value="exact@title">exact@title</option>
+                <option value="substr@title">substr@title</option>
+                <option value="start@title">start@title</option>
+                <option value="gte@year">gte@year</option>
+                <option value="equal@year">equal@year</option>
+                <option value="lte@year">lte@year</option>
+                <option value="exact@author">exact@author</option>
+                <option value="substr@author">substr@author</option>
+                <option value="start@author">start@author</option>
+                <option value="exact@abstract">exact@abstract</option>
+                <option value="substr@abstract">substr@abstract</option>
+                <option value="start@abstract">start@abstract</option>
+            </select>
+            <div class="input-group control-group">
+                <input class="my-form-control" type="text" style="width:100%!important;font-family: sans-serif;" id="textFilter" placeholder="Write the text to apply the filter"/>
+                <div class="input-group-btn"> 
+                    <button id="btnFilterText" state="Off" class="btn btn-secondary" type="button"><i id="iconTextFilter" class="glyphicon glyphicon-filter"></i> Filter</button>
+                </div>
+            </div>
+        </div>
+        <!-- -->
         <div class="col-lg-12 divContent hide">
             <!-- <input type="text" style="width:100%!important;" id="tagFilter"/> -->
             <div class="input-group control-group">
-                <input type="text" style="width:100%!important;" id="tagFilter" placeholder="Select tags to apply filter"/>
+                <input type="text" style="width:100%;" id="tagFilter" placeholder="Select tags to apply filter"/>
                 <div class="input-group-btn"> 
                     <button id="btnFilterTag" state="Off" class="btn btn-secondary" type="button"><i id="iconfilter" class="glyphicon glyphicon-filter"></i> Filter</button>
                 </div>
             </div>
         </div>
-        <div class="col-lg-12 divContent  hide divContent_without_filter">
+        <div class="col-lg-12 divContent   divContent_without_filter"> <!--hide-->
             <div>
                 <table id="content_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
                 </table>
