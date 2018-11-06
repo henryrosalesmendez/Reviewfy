@@ -1468,9 +1468,14 @@ $(document).ready(function() {
         
     });
     
-    
+
     
     ///--- details of publication
+    strip_doble_point = function(v){
+        return replaceAll(v,":","-0000-");
+    }
+    
+    //-
     $(document).on('click', '.btnDetailsPub', function () {
         var idp = $(this).attr("idp");
         var idd = $(this).attr("idd");
@@ -1482,6 +1487,7 @@ $(document).ready(function() {
             '<tr>'+
                 '<th scope="col">Key</th>'+
                 '<th scope="col">Value</th>'+
+                '<th scope="col"></th>'+
             '</tr>'+
         '</thead>'+
         '<tbody>'+
@@ -1494,13 +1500,20 @@ $(document).ready(function() {
         console.log(["doc",doc]);
         for (i in D[idd]["content"]){
             var pub = D[idd]["content"][i];
+            
             if (pub["id"] == idp){
                 for (k in pub){
                     var h  = pub[k];
-                    $("#fields_table").append('<tr><td class="text-primary">'+k+'</td><td class="text-primary">'+h+'</td></tr>');
+                    var action = '<button class="btn btn-secondary btnEditDetailPublication" type="button" indexp="'+i+'" idd="'+idd+'" idkey="'+strip_doble_point(k)+'" data-toggle="tooltip" title="Edit this field!"><i class="glyphicon glyphicon-edit"></i></button>';
+
+                    $("#fields_table").append('<tr><td id="detail_k-'+strip_doble_point(k)+'" class="text-primary">'+k+'</td><td class="text-primary" id="detail_v-'+strip_doble_point(k)+'">'+h+'</td><td id="detail_btn-'+strip_doble_point(k)+'">'+action+'</td></tr>');
                 }
+                
+                $("#btnNewDetailPublication").attr("indexp",i);
+                $("#btnNewDetailPublication").attr("idd",idd);
             }
         }
+        
         $("#modalPublication").modal("show");
         
         
@@ -2070,6 +2083,68 @@ $(document).ready(function() {
         showContent();        
     });
     
+    
+    //-- edit detail publication
+    $(document).on('click', '.btnEditDetailPublication', function () {
+        var index = $(this).attr("indexp");
+        var idd = $(this).attr("idd");
+        var idkey = $(this).attr("idkey");
+        var key = replaceAll(idkey,"-0000-",":");
+        
+        var actual_key = $("#detail_k-"+idkey).html();
+        var actual_val = $("#detail_v-"+idkey).html();
+
+        
+        var input_k = '<input class="my-form-control" type="text" style="width:100%!important;font-family: sans-serif;" id="detail_edition_k-'+idkey+'" value="'+actual_key+'" placeholder="Enter the Key"/>';
+        $("#detail_k-"+idkey).html(input_k);
+        
+        var input_v = '<input class="my-form-control" type="text" style="width:100%!important;font-family: sans-serif;" id="detail_edition_v-'+idkey+'" value="'+actual_val+'" placeholder="Enter the Value"/>';
+        $("#detail_v-"+idkey).html(input_v);
+        
+        var action_save = '<button class="btn btn-secondary btnSaveDetailPublication" type="button" indexp="'+index+'" idd="'+idd+'" idkey="'+idkey+'" data-toggle="tooltip" title="Edit this field!"><i class="glyphicon glyphicon-floppy-disk"></i></button>';
+        $("#detail_btn-"+idkey).html(action_save);
+
+    });
+    
+    
+    $(document).on('click', '.btnSaveDetailPublication', function () {
+        var index = $(this).attr("indexp");
+        var idd = $(this).attr("idd");
+        var idkey = $(this).attr("idkey");
+        var key = replaceAll(idkey,"-0000-",":");
+        
+        var actual_key = $("#detail_edition_k-"+idkey).val();
+        var actual_val = $("#detail_edition_v-"+idkey).val();
+        
+        console.log(["actual_key:",actual_key,"  actual_val:",actual_val]);
+        
+        D[idd]["content"][index][actual_key] = actual_val;
+        $("#detail_k-"+idkey).html(actual_key);
+        $("#detail_v-"+idkey).html(actual_val);
+        
+        var action_detail = '<button class="btn btn-secondary btnEditDetailPublication" type="button" indexp="'+index+'" idd="'+idd+'" idkey="'+key+'" data-toggle="tooltip" title="Edit this field!"><i class="glyphicon glyphicon-edit"></i></button>';
+        $("#detail_btn-"+idkey).html(action_detail);
+        
+        showContent();
+    });
+    
+    
+    $("#btnNewDetailPublication").click(function(){
+        var index = $(this).attr("indexp");
+        var idd = $(this).attr("idd");
+        
+        var new_key = $("#detail_input_new_k").val();
+        var new_val = $("#detail_input_new_v").val();
+        
+        D[idd]["content"][index][new_key] = new_val;
+        var action_detail = '<button class="btn btn-secondary btnEditDetailPublication" type="button" indexp="'+index+'" idd="'+idd+'" idkey="'+strip_doble_point(new_key)+'" data-toggle="tooltip" title="Edit this field!"><i class="glyphicon glyphicon-edit"></i></button>';
+        
+        $("#fields_table").append('<tr><td id="detail_k-'+strip_doble_point(new_key)+'" class="text-primary">'+new_key+'</td><td class="text-primary" id="detail_v-'+strip_doble_point(new_key)+'">'+new_val+'</td><td id="detail_btn-'+strip_doble_point(new_key)+'">'+action_detail+'</td></tr>');
+        
+        $("#detail_input_new_k").val("");
+        $("#detail_input_new_v").val("");
+        showContent();
+    });
     
     
 });
