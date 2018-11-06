@@ -582,9 +582,16 @@ $(document).ready(function() {
     $(document).on('click', '.btnSearch', function () {
         var idd = $(this).attr("idd");
         activeDoc = idd;
-        showContent();
-        show_with_filter();
+        
+        //show_with_filter();
         clearFilter();
+        clearFilterText();
+        
+        $("#selectFilterText").val("");
+        column_filtered = "";
+        
+        showContent();
+        
     });
     
     show_with_filter = function(){
@@ -665,6 +672,7 @@ $(document).ready(function() {
     
     columnsListDisplay = []
     showContent = function(){
+        show_with_filter();
         var idd = activeDoc;
         $("#content_table").empty();
         
@@ -674,7 +682,7 @@ $(document).ready(function() {
                 //'<th scope="col" style="width: 150px;">ID</th>'+
                 '<th scope="col" style="width: 50px;">Year</th>'+
                 '<th scope="col">Title</th>'+
-                '<th width="10%" scope="col">Authors</th>'+
+                '<th width="15%" scope="col">Authors</th>'+
                 '<th scope="col">Abstract</th>'+
                 '<th scope="col">Comments</th>'+
                 '<th scope="col">Tags</th>'+
@@ -781,7 +789,7 @@ $(document).ready(function() {
         }
         //$("#spanDocName").html("("+doc["length"]+") Showing: "+doc["name"]);
         var pos_l = pos-1;
-        $("#spanDocName").html("("+pos_l+") Showing: "+doc["name"]);
+        $("#spanDocName").html("("+pos_l+") Showing: #"+idd+" "+doc["name"]);
         apply_on_change_to_selects();
     }
     
@@ -1703,6 +1711,32 @@ $(document).ready(function() {
     }
     
     
+    unreferencing_pub = function(_idd,_idp){
+        for (var tt in D){
+            var _d = D[tt];
+            if (tt == _idd){
+                continue;                
+            }
+            
+            if (_d["type"] == "CMP"){
+                for (var ll in _d["content"]){
+                    var _p = _d["content"][ll];
+                    if ("meta:ref_idd" in _p){
+                        var _iddoc = _p["meta:ref_idd"];
+                        var _idpub = _p["meta:ref_idp"];
+                        if (_iddoc == _idd && _idpub==_idp){
+                            var _idp = _p["meta:ref_idp"];
+                            var _ind  = idpub2index(_iddoc,_idp);
+                            D[tt]["content"][ll] = D[_idd]["content"][_ind];
+                        }
+                        
+                    }
+                }                
+            }
+        }
+    }
+    
+    
     
     ////--- downloading the abstracts
     
@@ -1732,7 +1766,41 @@ $(document).ready(function() {
     
     
     ///-- Deleting a publication
-
+    deleting_referencing_pub = function(_idd,_idp){
+        for (var tt in D){
+            var _d = D[tt];
+            if (tt == _idd){
+                continue;                
+            }
+            
+            if (_d["type"] == "CMP"){
+                for (var ll in _d["content"]){
+                    var _p = _d["content"][ll];
+                    if ("meta:ref_idd" in _p){
+                        var _iddoc = _p["meta:ref_idd"];
+                        var _idpub = _p["meta:ref_idp"];
+                        if (_iddoc == _idd && _idpub==_idp){
+                            //var _ind  = idpub2index(_iddoc,_idp);
+                            D[tt]["content"].splice(ll, 1);
+                            D[tt]["length"] = parseInt(D[tt]["length"]) -1;
+                        }
+                        
+                    }
+                }                
+            }
+        }
+    }
+    
+    //-
+    deleting_publication_yes = function(id_doc,id_pub){
+        var index = idpub2index(id_doc, id_pub);
+        console.log(["id_doc:",id_doc,"  index:",index]);
+        deleting_referencing_pub(id_doc,id_pub);
+        D[id_doc]["content"].splice(index, 1);
+        D[id_doc]["length"] = parseInt(D[id_doc]["length"]) -1;
+    }
+    
+    //-
     $(document).on('click', '.btnDeletePub', function () {
         var id_pub = $(this).attr("idp");
         var id_doc = $(this).attr("idd");
@@ -1743,10 +1811,9 @@ $(document).ready(function() {
                 cssClass: 'btn-primary',
                 label: 'Yes',
                 action: function(dialog) {
-                    var index = idpub2index(id_doc, id_pub);
-                    console.log(["id_doc:",id_doc,"  index:",index]);
-                    D[id_doc]["content"].splice(index, 1);
-                    D[id_doc]["length"] = parseInt(D[id_doc]["length"]) -1;
+                    
+                    deleting_publication_yes(id_doc,id_pub);
+                    
                     updateMainTable();
                     showContent();
                     dialog.close();
