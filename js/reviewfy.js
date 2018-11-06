@@ -587,7 +587,7 @@ $(document).ready(function() {
         clearFilter();
         clearFilterText();
         
-        $("#selectFilterText").val("");
+        $("#textFilter").val("");
         column_filtered = "";
         
         showContent();
@@ -1942,6 +1942,7 @@ $(document).ready(function() {
     $("#btnFilterText").click(function(){
         var fText = $("#textFilter").val();
         var fField = $("#selectFilterText").val();
+        
         clearFilterText();
         
         if (fText != undefined && fText!=""){
