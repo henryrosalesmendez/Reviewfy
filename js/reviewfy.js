@@ -1774,7 +1774,7 @@ $(document).ready(function() {
     
     //-- 
     finalDoi = function(type_doc,pub){
-        if (type_doc == "ACM" && "doi" in pub && pub["doi"]!=undefined && pub["doi"].length!=0){
+        if ((type_doc == "ACM"||type_doc == "IEEE"||type_doc == "Springer") && "doi" in pub && pub["doi"]!=undefined && pub["doi"].length!=0){
             return "https://doi.org/"+pub["doi"]; 
         }
         return "";
@@ -1828,7 +1828,7 @@ $(document).ready(function() {
                     dataType: "html",
                     beforeSend: function(){},
                     success: function(response){
-                        //console.log(["response:",response]);
+                        console.log(["response:",response]);
                         add_abstract_to_pub(current_iddoc,current_index,response);                    
                         sincronism_ajax(current_iddoc,current_index+1);
                     },

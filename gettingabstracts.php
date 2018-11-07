@@ -64,6 +64,80 @@ function ACM_response($data){
         echo '{"error":'.$e->getMessage().'}';
     }
 }
+
+
+
+
+function IEEE_response($data){
+    try {
+
+        $short_doi = end(explode("/",$data["doi"]));
+        $qry_str = "?doid=".$short_doi."&preflayout=flat";
+        //echo $qry_str;
+        $ch = curl_init();
+
+        // Set query data here with the URL
+        curl_setopt($ch, CURLOPT_URL, 'https://dl.acm.org/citation.cfm' . $qry_str); 
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $content = trim(curl_exec($ch));
+        if (curl_errno($ch)) {
+            echo '{"error":"'.curl_error($ch).'"}';
+            return false;
+        }
+
+        curl_close($ch);
+        //echo $content;
+        
+       
+        // processing json    var_dump
+        //$c =  json_decode($content,true);
+        var_dump($content);
+        
+        /*$response= get_between($content,'<div style="display:inline">',"</div>");
+        $abstract = str_replace('"',"'",$response);
+        echo '{"response":"'.$abstract.'"}';*/
+        
+        
+    } catch (Exception $e) {
+        echo '{"error":'.$e->getMessage().'}';
+    }
+}
+
+
+
+
+function Springer_response($data){
+    try {
+
+        $n = sizeof(explode("/",$data["doi"]));
+        $short_doi = explode("/",$data["doi"])[$n-2]."/".explode("/",$data["doi"])[$n-1];
+        $ch = curl_init();
+
+        // Set query data here with the URL
+        curl_setopt($ch, CURLOPT_URL, 'https://link.springer.com/chapter/'.$short_doi); 
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $content = trim(curl_exec($ch));
+        if (curl_errno($ch)) {
+            echo '{"error":"'.curl_error($ch).'"}';
+            return false;
+        }
+
+        curl_close($ch);
+
+        $response= get_between($content,'<h2 class="Heading">Abstract</h2><p id="Par1" class="Para">',"</section>");
+        $abstract = str_replace('"',"'",$response);
+        
+        echo '{"response":"'.$abstract.'"}';
+        
+        
+    } catch (Exception $e) {
+        echo '{"error":'.$e->getMessage().'}';
+    }
+}
         
 
 //---
@@ -74,7 +148,8 @@ if (is_ajax()) {
 
             switch($data["library"]) { //Switch case for value of data
                 case "ACM": ACM_response($data); break;
-
+                case "IEEE": IEEE_response($data); break;
+                case "Springer": Springer_response($data); break;
             }
 
         }
