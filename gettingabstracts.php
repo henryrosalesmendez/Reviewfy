@@ -71,13 +71,13 @@ function ACM_response($data){
 function IEEE_response($data){
     try {
 
-        $short_doi = end(explode("/",$data["doi"]));
-        $qry_str = "?doid=".$short_doi."&preflayout=flat";
-        //echo $qry_str;
+        $n = sizeof(explode("/",$data["doi"]));
+        $d1 = explode("/",$data["doi"])[$n-2];
+        $d2 = explode("/",$data["doi"])[$n-1];
         $ch = curl_init();
 
         // Set query data here with the URL
-        curl_setopt($ch, CURLOPT_URL, 'https://dl.acm.org/citation.cfm' . $qry_str); 
+        curl_setopt($ch, CURLOPT_URL, 'http://ieeexploreapi.ieee.org/api/v1/search/articles?apikey=XXXXXXXXXXXXXXX&format=xml&max_records=1&start_record=1&sort_order=asc&sort_field=author&doi='.$d1.'/'.$d2); 
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -89,15 +89,9 @@ function IEEE_response($data){
 
         curl_close($ch);
         //echo $content;
-        
-       
-        // processing json    var_dump
-        //$c =  json_decode($content,true);
-        var_dump($content);
-        
-        /*$response= get_between($content,'<div style="display:inline">',"</div>");
+        $response= get_between($content,'<abstract>','</abstract>');
         $abstract = str_replace('"',"'",$response);
-        echo '{"response":"'.$abstract.'"}';*/
+        echo '{"response":"'.$abstract.'"}';
         
         
     } catch (Exception $e) {
@@ -121,6 +115,7 @@ function Springer_response($data){
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $content = trim(curl_exec($ch));
+
         if (curl_errno($ch)) {
             echo '{"error":"'.curl_error($ch).'"}';
             return false;

@@ -1816,29 +1816,33 @@ $(document).ready(function() {
             if (doi != ""){
                 update_block_caption('downloading_abstracts',current_index,D[current_iddoc]["content"].length);
                 D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
-
-                $.ajax({
-                    //data:params,
-                    data:{"values":{
-                        "doi":doi,
-                        "library":D[o_iddoc]["type"]
-                    }},
-                    url: 'gettingabstracts.php',
-                    type: 'POST',
-                    dataType: "html",
-                    beforeSend: function(){},
-                    success: function(response){
-                        console.log(["response:",response]);
-                        add_abstract_to_pub(current_iddoc,current_index,response);                    
-                        sincronism_ajax(current_iddoc,current_index+1);
-                    },
-                    error: function(response){
-                        //warning_alert("There were errors in the system API");
-                        //$.unblockUI();
-                        //return false;
-                        sincronism_ajax(current_iddoc,current_index+1);
-                    }
-                });            
+                if (!("abstract" in pub) || (pub["abstract"] == undefined || pub["abstract"] == "")){
+                    $.ajax({
+                        //data:params,
+                        data:{"values":{
+                            "doi":doi,
+                            "library":D[o_iddoc]["type"]
+                        }},
+                        url: 'gettingabstracts.php',
+                        type: 'POST',
+                        dataType: "html",
+                        beforeSend: function(){},
+                        success: function(response){
+                            //console.log(["response:",response]);
+                            add_abstract_to_pub(current_iddoc,current_index,response);                    
+                            sincronism_ajax(current_iddoc,current_index+1);
+                        },
+                        error: function(response){
+                            //warning_alert("There were errors in the system API");
+                            //$.unblockUI();
+                            //return false;
+                            sincronism_ajax(current_iddoc,current_index+1);
+                        }
+                    });
+                }
+                else{
+                    sincronism_ajax(current_iddoc,current_index+1);
+                }
             }
             else{
                 sincronism_ajax(current_iddoc,current_index+1);
