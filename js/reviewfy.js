@@ -1673,11 +1673,13 @@ $(document).ready(function() {
                     newPub["meta:tags"] = 0; // etiqueta por las que se filtra
                     newPub["meta:iddoc"] = newidDoc;
                     newDoc["content"].push(newPub);
+                    globalValue = "";
                     cant = cant + 1;
                 }
                 else{  // into the publication data
                     var key = trim_1(textBetween(l,"\n","="));
                     var val = textBetween(l,T["start"],T["end"]);
+                    //console.log(["key:",key,"  val:",val]);
                     var l_rest = l.substring(l.indexOf(T["start"])+1,l.length+1);
                     if (l_rest.indexOf(T["end"]) == -1){
                         status = 1;
