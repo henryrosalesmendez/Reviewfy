@@ -1784,12 +1784,19 @@ $(document).ready(function() {
     
     //
     add_abstract_to_pub = function(idd,_index,response){
-        var json_response = JSON.parse(trim_1(response));
-        if ("error" in json_response){
-            warning_alert("Error: " + json_response["error"]);
+        try { 
+            var json_response = JSON.parse(trim_1(response));
+            if ("error" in json_response){
+                //warning_alert("Error: " + json_response["error"]);
+                console.log("--> Error: " + json_response["error"]);
+            }
+            else{
+                D[idd]["content"][_index]["abstract"] = json_response["response"];
+            }
         }
-        else{
-            D[idd]["content"][_index]["abstract"] = json_response["response"];
+        catch(err) {
+            console.log(["response:",response]);
+            console.log("==> Error Parsing Abstrct: " + err);
         }
     }
     
