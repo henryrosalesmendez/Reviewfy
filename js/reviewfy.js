@@ -2558,7 +2558,7 @@ $(document).ready(function() {
                 if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
             }
             if (column_filtered!=""){
-                if (!("meta:filter" in pub) &&  !("meta:filter" in pub_r)){
+                if (!("meta:filter" in pub)){
                     continue;
                 }
             }
