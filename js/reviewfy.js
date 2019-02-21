@@ -497,7 +497,7 @@ $(document).ready(function() {
         while (p<text.length){
             p = p +1;
             ch = text[p];
-            //console.log(["(",state,")",p,ch]);
+            //console.log(["("+state+")->",p,ch]);
             
             if (state == 0){ // fw ,
                 if (ch == ","){
@@ -550,9 +550,14 @@ $(document).ready(function() {
             }
             else if (state == 6){  //rw  ]
                 if (ch == "]"){
-                    state = 4
+                    state = 600;
                 }
                 
+            }
+            else if (state == 600){
+                if (ch == ","){
+                    state = 15;
+                }                
             }
             else if (state == 7){  // fw [ ""key1"",""key2"", ... ]" 
                 if (ch == '['){
@@ -614,6 +619,24 @@ $(document).ready(function() {
                     //R["abstract"] = "";
                     state = 19;
                 }
+                else if (ch == "["){
+                    state = 6;
+                }
+                else { // abstract with out "
+                    //console.log('abstract with out "');
+                    t = ch;
+                    state = 150;
+                }
+                
+            }
+            else if (state == 150){
+                if (ch == ","){
+                    R["abstract"] = t;
+                    //alert("encontré la coma");
+                    t = "";
+                    state = 19;
+                }
+                else {t = t + ch;}
                 
             }
             else if (state == 16){  // fw  "  --- beyond "abstract ... or "[
@@ -747,6 +770,8 @@ $(document).ready(function() {
         var _pos = 70;  // avoiding head
         while (_pos+1 < ntext){
             res = parserSLR(_pos,text);
+            //console.log(["res:",res]);
+            //alert("dime");
             
             if (res != false){
                 var newPub = res[1];  
