@@ -2516,6 +2516,20 @@ $(document).ready(function() {
     });
     
     
+    //-----
+    
+    
+    copy_dict = function(publ){
+        var _publ = {};
+        
+        for (key in publ){
+            _publ[key] = publ[key];
+        }
+        
+        return _publ;
+    }
+    
+    
     //----------- saving filter environment
     
     $("#btnFilterSave").click(function(){
@@ -2553,11 +2567,20 @@ $(document).ready(function() {
         }
         
         //---
+        
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        
+        //---
         var ccant = 0;
         for (o in D[activeDoc]["content"]){
             var pub = CAST(D[activeDoc]["content"][o]);
             //var pub_r = D[activeDoc]["content"][i];
             
+            pub_ = copy_dict(pub);
             
             if (filterList.length != 0){
                 if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
@@ -2568,19 +2591,13 @@ $(document).ready(function() {
                 }
             }
             
-            
-            newDoc["content"].push(pub);
+            pub_["meta:iddoc"] = newidDoc;
+            newDoc["content"].push(pub_);
             /*newDoc["content"].push({
                 "meta:ref_idd":pub["meta:iddoc"],
                 "meta:ref_idp":pub["id"]                
             });*/
             ccant = ccant + 1;
-        }
-        
-        var Akey = Object.keys(D);
-        var newidDoc = 1;
-        if (Akey.length != 0){
-            newidDoc = parseInt(Akey[Akey.length-1])+1;
         }
         
         newDoc["length"] = ccant;
