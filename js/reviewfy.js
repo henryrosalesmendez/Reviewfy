@@ -217,7 +217,9 @@ $(document).ready(function() {
        "IEEE": "success",
        "SCD": "warning",
        "Springer": "info",
-       "CMP": "default"
+       "CMP": "default",
+       "SLR": "danger",
+       "Filter": "default"
    };
    
    updateMainTable = function(){
@@ -285,7 +287,10 @@ $(document).ready(function() {
             textFromUpload = e.target.result;
             //console.log(textFromUpload);
             //$("#btn_inputNIF").click();
-            if (typeInput == "env"){
+            if (newDoc['type'] == "SLR"){
+                parseTextInputSLR();
+            }
+            else if (typeInput == "env"){
                 parseEnvInput();
             }
             else{
@@ -301,14 +306,15 @@ $(document).ready(function() {
         fr.readAsText(file);
     }
         
-        $('#modalUpload_upload').click(function(evt) {
-            /*warning_alert("It's not working yet :(, you should try to copy/paste the nif content in the text area and apply the next button");
-        /**/if (evt.target.tagName.toLowerCase() == 'button') {
+    
+    //
+    $('#modalUpload_upload').click(function(evt) {
+        if (evt.target.tagName.toLowerCase() == 'button') {
             var startByte = evt.target.getAttribute('data-startbyte');
             var endByte = evt.target.getAttribute('data-endbyte');
             readBlob(startByte, endByte);
         }
-        $("#divShow").removeClass("hide");/**/
+        $("#divShow").removeClass("hide");
     });
 
 
@@ -475,12 +481,311 @@ $(document).ready(function() {
        //Update table
        updateMainTable();
     };
+    
+    
+    
+    
+    //-------
+    parserSLR = function(pos,text){
+        state = 0;
+        var p = pos;
+
+        t = "";
+        p = p -1;
+        R = {};
+
+        while (p<text.length){
+            p = p +1;
+            ch = text[p];
+            //console.log(["(",state,")",p,ch]);
+            
+            if (state == 0){ // fw ,
+                if (ch == ","){
+                    state = 1;
+                }
+                else { t = t + ch; }  
+                
+            }
+            else if (state == 1){ // fw number  ---  title
+                if (isNumber(ch) == true){
+                    R["title"] = t;
+                    t = ch;
+                    state = 2;
+                }
+                else {
+                    t = t + "," + ch;
+                    state = 0;
+                }
+                
+            }
+            else if (state == 2){ // fw ,  -- ranking
+                if (ch == ","){
+                    R["ranking"] = t;
+                    state = 3;
+                    t = "";
+                }
+                else { t = t + ch; }  
+                
+            }
+            else if (state == 3){ // fw ,  -- completitud
+                if (ch == ","){
+                    R["completitud"] = t;
+                    state = 4;
+                    t = "";
+                }
+                else { t = t + ch; }  
+                
+            }
+            else if (state == 4){  // fw "      --- "[""...""]", ...    --- keywords
+                if (ch == '"'){
+                    state = 7;
+                }
+                else if (ch == '['){  // empty
+                    state = 6;
+                }
+                else if (ch == ","){
+                    state = 15;
+                }
+                
+            }
+            else if (state == 6){  //rw  ]
+                if (ch == "]"){
+                    state = 4
+                }
+                
+            }
+            else if (state == 7){  // fw [ ""key1"",""key2"", ... ]" 
+                if (ch == '['){
+                    state = 8;
+                }
+                
+            }
+            else if (state == 8){
+                if (ch == '"'){
+                    state = 9;
+                }
+                
+            }
+            else if (state == 9){
+                if (ch == '"'){
+                    state = 10;
+                }
+                
+            }
+            else if (state == 10){ //rw "", or ""] 
+                if (ch == '"'){
+                    state = 11;
+                }
+                else{/*I dont store keywords here */}
+                
+            }
+            else if (state == 11){
+                if (ch == '"'){
+                    state = 12;
+                }
+                
+            }
+            else if (state == 12){
+                if (ch == ','){
+                    state = 8;
+                }
+                else if (ch == ']'){
+                    state = 13;
+                }       
+                
+            }
+            else if (state == 13){  // rw  "  --- closing current set of keywords
+                if (ch == '"'){
+                    state = 14;
+                }
+                
+            }
+            else if (state == 14){  // fw  ,  
+                if (ch == ','){
+                    state = 15;
+                }
+                
+            }
+            else if (state == 15){  // fw  "  --- beyond "abstract ... or "[
+                if (ch == '"'){
+                    state = 16;
+                }
+                else if (ch == ","){ //    -- no abstract
+                    //R["abstract"] = "";
+                    state = 19;
+                }
+                
+            }
+            else if (state == 16){  // fw  "  --- beyond "abstract ... or "[
+                if (ch == '['){
+                    state = 8;
+                }
+                else {
+                    t = ch;
+                    state = 17;
+                }
+            }
+            else if (state == 17){ // rw " -- Abstract 
+                if (ch == '"'){
+                    state = 18;
+                }
+                else{ t = t + ch;}
+                
+            }
+            else if (state == 18){
+                if (ch == ","){
+                    R["abstract"] = t;
+                    t = "";
+                    state = 19;
+                }
+                else {
+                    state = 17;
+                    t = t + '"' + ch; 
+                }
+                
+            }
+            else if (state == 19){ // fw   --- enlace
+                if (ch == ","){  // no enlace
+                    state = 21;
+                }
+                else {
+                    state = 20;
+                    t = ch;
+                }
+                
+            } 
+            else if (state == 20){ // rw ,
+                if (ch == ","){
+                    if (t!=""){
+                        R["doi"] = t;
+                        t = "";
+                        state = 21;
+                    }
+                }
+                else {t = t + ch;}
+                
+            }
+            else if (state == 21){  // fw -- year
+                if (ch == ","){ // no year
+                    state = 23;
+                }
+                else {
+                    state = 22;
+                    t = ch;
+                }
+                
+            }
+            else if (state == 22){
+                if (ch == ","){
+                    state = 23;
+                    R["year"] = t;
+                    if (p == text.length-1){                        
+                        return [p,R];
+                    }
+                }
+                else { t = t + ch;}
+                
+            }
+            else if (state == 23){ // fw \s
+                if (p == text.length-1){
+                    state = 24;
+                }
+                else if (ch == " " || ch == "\n" || ch == "\t"){
+                    state = 24;
+                }
+            }
+            else if (state == 24){  // fw EOL or not \s
+                if (p == text.length-1){
+                    return [p,R];
+                }
+                else if (! (ch == " " || ch == "\n" || ch == "\t") ){
+                    return [p,R];
+                }
+            }
+
+        }
+        return false;
+    }
+    
+    //---
+    parseTextInputSLR = function(){
+        
+        //
+        var text = undefined;
+        if (textFromUpload == undefined){
+            text = $("#inDoc").val();
+        } else{
+          text = textFromUpload;
+          textFromUpload = undefined;
+        }
+        
+        // in the case of automatic identifier needed
+        var randd = parseInt(Math.random()*10000);
+        var randd_ = randd.toString();
+        
+        
+        //meta-data
+        var dname = $("#inName").val();if (dname == undefined){dname = "";}
+        var ddescription = $("#inDescription").val();if (ddescription == undefined){ddescription = "";}
+        var dquery = $("#inQuery").val();if (dquery == undefined){dquery = "";}
+        
+        newDoc["name"] = dname;
+        newDoc["description"] = ddescription;
+        newDoc["searchQuery"] = dquery;
+        
+        // parsing
+        var first = true;
+        var cant = 0;
+
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        
+        var ntext = text.length;
+        var _pos = 70;  // avoiding head
+        while (_pos+1 < ntext){
+            res = parserSLR(_pos,text);
+            
+            if (res != false){
+                var newPub = res[1];  
+                _pos = res[0];
+                
+                //autonumeric
+                var cc = cant+100001;                
+                newPub["id"] = randd_.concat(cc.toString());
+
+                
+                newPub["meta:tags"] = 0; // etiqueta por las que se filtra
+                newPub["meta:iddoc"] = newidDoc;
+                if ("ranking" in newPub){
+                    newPub["meta:comment"] = "ranking:" + newPub["ranking"];
+                }
+                if ("completitud" in newPub){
+                    newPub["meta:comment"] = newPub["meta:comment"] + "\ncompletitud:" + newPub["completitud"];
+                }
+                newDoc["content"].push(newPub);
+                cant = cant + 1;
+            }
+        }
+        
+        newDoc["fileName"] = tempFileInput;
+        newDoc["timeUpload"]= new Date().toLocaleTimeString();
+        newDoc["dateUpload"]= new Date().toLocaleDateString();
+        //newDoc["repited"] = invert_counting(Rr);
+        //newDoc["typePubl"] = jQuery.extend({}, Rt);
+        newDoc["length"] = cant;
+        D[newidDoc] = newDoc;
+
+       //Update table
+       updateMainTable();
+    };
+    
 
     
     
     // We suppose that the sentences are ordered
-    
-    
     
     $("#input-b9").fileinput({
         showPreview: false,
@@ -511,6 +816,14 @@ $(document).ready(function() {
     $("#btn_upload_Springer").click(function(){
         typeFile = "CSV";
         newDoc = {"fileName":"-", "type":"Springer", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
+        $("#modalUpload").modal("show");
+    });
+    
+    
+    $("#btn_upload_SLR").click(function(){
+        typeFile = "CSV";
+        newDoc = {"fileName":"-", "type":"SLR", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         typeInput = "dump";
         $("#modalUpload").modal("show");
     });
@@ -1718,7 +2031,7 @@ $(document).ready(function() {
     
     
     //---- 
-    // This method is used when yoy have comparison with publication referencing to others (to save space in RAM), and then you wants to eliminate the source document,
+    // This method is used when you have comparison with publication referencing to others (to save space in RAM), and then you wants to eliminate the source document,
     // Here, we put a copy of each publication of the document in process of deleting in the comparison document.
     unreferencing = function(_idd){
         for (var tt in D){
@@ -1727,7 +2040,7 @@ $(document).ready(function() {
                 continue;                
             }
             
-            if (_d["type"] == "CMP"){
+            if (_d["type"] == "CMP" || _d["type"] == "Filter"){
                 for (var ll in _d["content"]){
                     var _p = _d["content"][ll];
                     if ("meta:ref_idd" in _p){
@@ -2157,6 +2470,79 @@ $(document).ready(function() {
         $("#detail_input_new_k").val("");
         $("#detail_input_new_v").val("");
         showContent();
+    });
+    
+    
+    //----------- saving filter environment
+    
+    $("#btnFilterSave").click(function(){
+        var desc = "";
+        var fText = $("#textFilter").val();
+        var fField = $("#selectFilterText").val();
+        var listTags = $("#tagFilter").select2('data');
+        if (listTags!=undefined && listTags.length != 0){
+            desc = desc + "["+listTags.join(",")+"]|";
+        }
+        if (fField != undefined){
+            desc = desc + fField + "|";
+        }
+        if (fText != undefined){
+            desc = desc + fText + "|";
+        }
+        
+        var num_filter = countNum("Filter");
+        
+        newDoc = {"fileName":"-", "type":"Filter", "name":"Filter #"+num_filter,"searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":desc, "content":[]};
+        newDoc["timeUpload"]= new Date().toLocaleTimeString();
+        newDoc["dateUpload"]= new Date().toLocaleDateString();
+        //newDoc["searchQuery"] = "("+doc.length+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str;
+        
+        //---
+        
+        var idfilter = -1;
+        var Lfilter = [];
+        if (filterList.length != 0){
+            idfilter = invListTags[filterList[0]];
+            
+            for (j in filterList){
+                Lfilter.push(invListTags[filterList[j]]);
+            }
+        }
+        
+        //---
+        var ccant = 0;
+        for (o in D[activeDoc]["content"]){
+            var pub = CAST(D[activeDoc]["content"][o]);
+            var pub_r = D[activeDoc]["content"][i];
+            
+            
+            if (filterList.length != 0){
+                if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
+            }
+            if (column_filtered!=""){
+                if (!("meta:filter" in pub) &&  !("meta:filter" in pub_r)){
+                    continue;
+                }
+            }
+            
+            newDoc["content"].push({
+                "meta:ref_idd":pub["meta:iddoc"],
+                "meta:ref_idp":pub["id"]                
+            });
+            ccant = ccant + 1;
+        }
+        
+        var Akey = Object.keys(D);
+        var newidDoc = 1;
+        if (Akey.length != 0){
+            newidDoc = parseInt(Akey[Akey.length-1])+1;
+        }
+        
+        newDoc["length"] = ccant;
+        D[newidDoc] = newDoc;
+        //activeDoc = newidDoc;
+        
+        updateMainTable();
     });
     
     
