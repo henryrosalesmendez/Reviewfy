@@ -766,6 +766,7 @@ $(document).ready(function() {
             newidDoc = parseInt(Akey[Akey.length-1])+1;
         }
         
+        var Rr = {}; // couting the repetitions
         var ntext = text.length;
         var _pos = 70;  // avoiding head
         while (_pos+1 < ntext){
@@ -780,8 +781,20 @@ $(document).ready(function() {
                 //autonumeric
                 var cc = cant+100001;                
                 newPub["id"] = randd_.concat(cc.toString());
-
                 
+                // repeted?
+                var pid = newPub["title"] + newPub["year"];
+                if (pid in Rr){
+                    Rr[pid] = Rr[pid] + 1;
+                    console.log("Repetido:"+pid);
+                    continue; 
+                }
+                else{
+                    Rr[pid] = 1;
+                }
+
+
+                //
                 newPub["meta:tags"] = 0; // etiqueta por las que se filtra
                 newPub["meta:iddoc"] = newidDoc;
                 if ("ranking" in newPub){
@@ -798,7 +811,7 @@ $(document).ready(function() {
         newDoc["fileName"] = tempFileInput;
         newDoc["timeUpload"]= new Date().toLocaleTimeString();
         newDoc["dateUpload"]= new Date().toLocaleDateString();
-        //newDoc["repited"] = invert_counting(Rr);
+        newDoc["repited"] = invert_counting(Rr);
         //newDoc["typePubl"] = jQuery.extend({}, Rt);
         newDoc["length"] = cant;
         D[newidDoc] = newDoc;
