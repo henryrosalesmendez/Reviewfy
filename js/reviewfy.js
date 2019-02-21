@@ -260,7 +260,11 @@ $(document).ready(function() {
            
            actions = actions + '<button class="btn btn-secondary btnSearch" type="button" idd="'+i+'" data-toggle="tooltip" title="Display Content"><i class="glyphicon glyphicon-pushpin"></i></button>';
            
-           $("#doc_table").append('<tr id="tr'+i+'"><td>'+ttt+'</td><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
+           stl = "";
+           if (activeDoc == i){
+               stl = 'style="background-color: #bac5d0;"';
+           }
+           $("#doc_table").append('<tr id="tr'+i+'" '+stl+'><td>'+ttt+'</td><td>'+i+'</td><td>'+d["dateUpload"]+'</th><td>'+d["timeUpload"]+'</td><td>'+d["length"]+'</td><td>'+d["name"]+'</td><td>'+d["description"]+'</td><td>'+d["searchQuery"]+'</td><td style="text-align:right">'+actions+'</td></tr>');
            pos = pos + 1;
        }
    }
@@ -1161,6 +1165,7 @@ $(document).ready(function() {
         var pos_l = pos-1;
         $("#spanDocName").html("("+pos_l+") Showing: #"+idd+" "+doc["name"]);
         apply_on_change_to_selects();
+        updateMainTable();
     }
     
      
@@ -2103,7 +2108,7 @@ $(document).ready(function() {
                 continue;                
             }
             
-            if (_d["type"] == "CMP"){
+            if (_d["type"] == "CMP" || _d["type"] == "Filter"){
                 for (var ll in _d["content"]){
                     var _p = _d["content"][ll];
                     if ("meta:ref_idd" in _p){
@@ -2257,7 +2262,7 @@ $(document).ready(function() {
                 continue;                
             }
             
-            if (_d["type"] == "CMP"){
+            if (_d["type"] == "CMP" || _d["type"] == "Filter"){
                 for (var ll in _d["content"]){
                     var _p = _d["content"][ll];
                     if ("meta:ref_idd" in _p){
@@ -2551,7 +2556,7 @@ $(document).ready(function() {
         var ccant = 0;
         for (o in D[activeDoc]["content"]){
             var pub = CAST(D[activeDoc]["content"][o]);
-            var pub_r = D[activeDoc]["content"][i];
+            //var pub_r = D[activeDoc]["content"][i];
             
             
             if (filterList.length != 0){
@@ -2563,10 +2568,12 @@ $(document).ready(function() {
                 }
             }
             
-            newDoc["content"].push({
+            
+            newDoc["content"].push(pub);
+            /*newDoc["content"].push({
                 "meta:ref_idd":pub["meta:iddoc"],
                 "meta:ref_idp":pub["id"]                
-            });
+            });*/
             ccant = ccant + 1;
         }
         
@@ -2578,9 +2585,18 @@ $(document).ready(function() {
         
         newDoc["length"] = ccant;
         D[newidDoc] = newDoc;
-        //activeDoc = newidDoc;
         
+        //
+        activeDoc = newidDoc;
+        clearFilter();
+        clearFilterText();
+        
+        $("#textFilter").val("");
+        column_filtered = "";
+        
+        //        
         updateMainTable();
+        showContent();
     });
     
     
