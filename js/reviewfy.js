@@ -250,7 +250,7 @@ $(document).ready(function() {
            var actions =  '<button class="btn btn-secondary btnEdit" type="button" idd="'+i+'" data-toggle="tooltip" title="Edit the data of this dump"><i class="glyphicon glyphicon-edit"></i></button>';
            actions = actions + '<button class="btn btn-secondary btnDetails" type="button" idd="'+i+'" data-toggle="tooltip" title="Details"><i class="glyphicon glyphicon-th"></i></button>';
            
-           actions = actions + '<button class="btn btn-secondary btnDelete" type="button" idd="'+i+'" data-toggle="tooltip" title="Delete this document"><i class="glyphicon glyphicon-erase"></i></button>';
+           actions = actions + '<button class="btn btn-secondary btnDelete" type="button" idd="'+i+'" data-toggle="tooltip" title="Delete this document"><i class="glyphicon glyphicon-trash"></i></button>';
            
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            
@@ -1462,7 +1462,7 @@ $(document).ready(function() {
         newDoc = {"fileName":"-", "type":"CMP", "name":"Comparison #"+num_cmp,"searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":doc.length, "description":"", "content":[]};
         newDoc["timeUpload"]= new Date().toLocaleTimeString();
         newDoc["dateUpload"]= new Date().toLocaleDateString();
-        newDoc["searchQuery"] = "("+doc.length+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str;
+        newDoc["description"] = "("+doc.length+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str;
         
         for (o in doc){
             var pub = doc[o];
@@ -2283,7 +2283,7 @@ $(document).ready(function() {
     //-
     deleting_publication_yes = function(id_doc,id_pub){
         var index = idpub2index(id_doc, id_pub);
-        console.log(["id_doc:",id_doc,"  index:",index]);
+        //console.log(["id_doc:",id_doc,"  index:",index]);
         deleting_referencing_pub(id_doc,id_pub);
         D[id_doc]["content"].splice(index, 1);
         D[id_doc]["length"] = parseInt(D[id_doc]["length"]) -1;
@@ -2533,10 +2533,11 @@ $(document).ready(function() {
     //----------- saving filter environment
     
     $("#btnFilterSave").click(function(){
-        var desc = "";
+        var desc = "from dump #"+parseInt(activeDoc)+"|";
         var fText = $("#textFilter").val();
         var fField = $("#selectFilterText").val();
         var listTags = $("#tagFilter").select2('data');
+        
         if (listTags!=undefined && listTags.length != 0){
             desc = desc + "["+listTags.join(",")+"]|";
         }
@@ -2578,7 +2579,7 @@ $(document).ready(function() {
         var ccant = 0;
         for (o in D[activeDoc]["content"]){
             var pub = CAST(D[activeDoc]["content"][o]);
-            //var pub_r = D[activeDoc]["content"][i];
+            var pub_r = D[activeDoc]["content"][o];
             
             pub_ = copy_dict(pub);
             
@@ -2586,7 +2587,7 @@ $(document).ready(function() {
                 if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
             }
             if (column_filtered!=""){
-                if (!("meta:filter" in pub)){
+                if (!("meta:filter" in pub_r)){
                     continue;
                 }
             }
@@ -2615,6 +2616,91 @@ $(document).ready(function() {
         updateMainTable();
         showContent();
     });
+    
+    
+    
+    // deleting all filtered items ------------
+    
+    $("#btnFilterTrash").click(function(){
+        BootstrapDialog.show({
+            title: 'Removing filtered items',
+            message: 'Are you sure you want to permanently delete all the items listed above? This operation can not be undone.',
+            buttons: [{
+                cssClass: 'btn-primary',
+                label: 'Yes',
+                action: function(dialog) {
+                    
+                    deleting_filtered_items();
+                    
+                    updateMainTable();
+                    showContent();
+                    dialog.close();
+                }
+            }, {
+                label: 'No',
+                action: function(dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+    });
+    
+    
+    
+    deleting_filtered_items = function(){
+
+        
+        //---
+        
+        var idfilter = -1;
+        var Lfilter = [];
+        if (filterList.length != 0){
+            idfilter = invListTags[filterList[0]];
+            
+            for (j in filterList){
+                Lfilter.push(invListTags[filterList[j]]);
+            }
+        }
+        
+        
+        //---
+        var ccant = 0;
+        for (o in D[activeDoc]["content"]){
+            var pub = CAST(D[activeDoc]["content"][o]);
+            var pub_r = D[activeDoc]["content"][o];
+            
+            pub_ = copy_dict(pub);
+            
+            if (filterList.length != 0){
+                if (esta_en(Lfilter,pub["meta:tags"])==false){continue;}
+            }
+            if (column_filtered!=""){
+                if (!("meta:filter" in pub_r)){
+                    continue;
+                }
+            }
+            
+            //
+            deleting_referencing_pub(activeDoc,o);
+            D[activeDoc]["content"].splice(o, 1);
+            D[activeDoc]["length"] = parseInt(D[activeDoc]["length"]) -1;            
+            //
+            
+            
+            ccant = ccant + 1;
+        }
+        
+        //
+        clearFilter();
+        clearFilterText();
+        
+        $("#textFilter").val("");
+        column_filtered = "";
+        
+        //        
+        updateMainTable();
+        showContent();
+    }
     
     
 });
