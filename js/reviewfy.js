@@ -2733,27 +2733,29 @@ $(document).ready(function() {
     
     //-------- Adding dinamic field for filtering
     
-    $("#newOptionFilterSelect").click(function(){
-        BootstrapDialog.show({
-            title: 'Input',
-            message: $('<input id="filtrInput" class="form-control" placeholder="Enter a custom setting, e.g., substr@author"></textarea>'),
-            buttons: [{
-                label: 'Close',
-                action: function(dialog) {
-                    dialog.close();
-                }
-            },{
-                label: 'Ok',
-                cssClass: 'btn-primary',
-                hotkey: 13, // Enter.
-                action: function(dialog) {
-                    var inpt = $("#filtrInput").val();
-                    $("#filtrInput").remove();
-                    dialog.close();
-                    addNewOptionFilter(inpt);
-                }
-            }]
-        });
+    $("select#selectFilterText").change(function(){
+        if ($(this).children(":selected").html()=="-- add --"){
+            BootstrapDialog.show({
+                title: 'Input',
+                message: $('<input id="filtrInput" class="form-control" placeholder="Enter a custom setting, e.g., substr@author"></textarea>'),
+                buttons: [{
+                    label: 'Close',
+                    action: function(dialog) {
+                        dialog.close();
+                    }
+                },{
+                    label: 'Ok',
+                    cssClass: 'btn-primary',
+                    hotkey: 13, // Enter.
+                    action: function(dialog) {
+                        var inpt = $("#filtrInput").val();
+                        $("#filtrInput").remove();
+                        dialog.close();
+                        addNewOptionFilter(inpt);
+                    }
+                }]
+            });
+        }
     });
     
     
