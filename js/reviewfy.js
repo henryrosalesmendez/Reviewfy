@@ -1561,7 +1561,7 @@ $(document).ready(function() {
                 var dumpItemContentElem = doc.createElement("dumpItemContent");              
                 for (k in content){
                     var dumpItemContentElemItem = doc.createElement("dumpItemContentItem");  
-                    console.log(["k:",k," content[k]:",content[k]]);
+                    //console.log(["k:",k," content[k]:",content[k]]);
                     dumpItemContentElemItem.setAttribute("key", k);
                     dumpItemContentElemItem.setAttribute("value", content[k]);
                     dumpItemContentElem.appendChild(dumpItemContentElemItem);
