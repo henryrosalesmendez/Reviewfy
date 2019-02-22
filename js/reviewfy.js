@@ -162,7 +162,11 @@ $(document).ready(function() {
         $("#"+tab_id).addClass('current');
     })
     
-    clearFilter = function(){        
+    clearFilter = function(){      
+        
+        $("#btnFilterTagClear").addClass("hide");
+        $("#iconfilter").removeClass("blue_color");
+        
         $("#tagFilter").val('').trigger("change");
         filterList = [];
     }
@@ -1209,6 +1213,9 @@ $(document).ready(function() {
             filterList.push(l["text"]);
         }
         showContent();
+        
+        $("#btnFilterTagClear").removeClass("hide");
+        $("#iconfilter").addClass("blue_color");  
     });
     
     
@@ -2709,9 +2716,6 @@ $(document).ready(function() {
     //----- clear filter
     
     $("#btnFilterClear").click(function(){
-        
-        
-        clearFilter();
         clearFilterText();
         
         $("#textFilter").val("");
@@ -2719,6 +2723,15 @@ $(document).ready(function() {
         
         showContent();
     });
+    
+    
+    $("#btnFilterTagClear").click(function(){
+        clearFilter();
+        showContent();
+    });
+    
+    
+    
     
     
 });
