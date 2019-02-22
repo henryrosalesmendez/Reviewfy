@@ -162,7 +162,7 @@ $(document).ready(function() {
         $("#"+tab_id).addClass('current');
     })
     
-    clearFilter = function(){
+    clearFilter = function(){        
         $("#tagFilter").val('').trigger("change");
         filterList = [];
     }
@@ -2419,6 +2419,9 @@ $(document).ready(function() {
     
     //--
     clearFilterText = function(){
+        $("#btnFilterClear").addClass("hide");
+        $("#iconTextFilter").removeClass("blue_color");  
+        
         for (pi in D[activeDoc]["content"]){
             if ("meta:filter" in D[activeDoc]["content"][pi]){    
                 delete D[activeDoc]["content"][pi]["meta:filter"];
@@ -2433,6 +2436,10 @@ $(document).ready(function() {
         var fField = $("#selectFilterText").val();
         
         clearFilterText();
+        
+        $("#iconTextFilter").addClass("blue_color");  
+        $("#btnFilterClear").removeClass("hide");        
+        
         
         if (fText != undefined && fText!=""){
             column_filtered = fField.split("@")[1];
@@ -2647,11 +2654,7 @@ $(document).ready(function() {
     
     
     
-    deleting_filtered_items = function(){
-
-        
-        //---
-        
+    deleting_filtered_items = function(){        
         var idfilter = -1;
         var Lfilter = [];
         if (filterList.length != 0){
@@ -2701,6 +2704,21 @@ $(document).ready(function() {
         updateMainTable();
         showContent();
     }
+    
+    
+    //----- clear filter
+    
+    $("#btnFilterClear").click(function(){
+        
+        
+        clearFilter();
+        clearFilterText();
+        
+        $("#textFilter").val("");
+        column_filtered = "";
+        
+        showContent();
+    });
     
     
 });

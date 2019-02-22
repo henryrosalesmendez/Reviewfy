@@ -118,10 +118,11 @@
             </select>
             <div class="input-group control-group">
                 <input class="my-form-control" type="text" style="width:100%!important;font-family: sans-serif;" id="textFilter" placeholder="Write the text to apply the filter"/>
-                <div class="input-group-btn"> 
-                    <button id="btnFilterText" state="Off" class="btn btn-secondary" type="button"><i id="iconTextFilter" class="glyphicon glyphicon-filter"></i> Filter</button>
-                    <button id="btnFilterSave" state="Off" class="btn btn-secondary" type="button" data-toggle="tooltip" title="Save in environment"><i class="glyphicon glyphicon-send"></i></button>
-                    <button id="btnFilterTrash" state="Off" class="btn btn-secondary" type="button" data-toggle="tooltip" title="Delete all selected items"><i class="glyphicon glyphicon-trash"></i></button>
+                <div class="input-group-btn input-group-lg">
+                    <button id="btnFilterClear" state="Off" class="btn btn-primary group_button hide" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                    <button id="btnFilterText" state="Off" class="btn btn-secondary group_button" type="button"><i id="iconTextFilter" class="glyphicon glyphicon-filter"></i> Filter</button>
+                    <button id="btnFilterSave" state="Off" class="btn btn-secondary group_button" type="button" data-toggle="tooltip" title="Save in environment" style="line-height: 1.5!important;"><i class="glyphicon glyphicon-send"></i></button>
+                    <button id="btnFilterTrash" state="Off" class="btn btn-secondary red_color group_button" type="button" data-toggle="tooltip" title="Delete all selected items"><i class="glyphicon glyphicon-trash"></i></button>
                 </div>
             </div>
         </div>
@@ -130,7 +131,7 @@
             <!-- <input type="text" style="width:100%!important;" id="tagFilter"/> -->
             <div class="input-group control-group">
                 <input type="text" style="width:100%;" id="tagFilter" placeholder="Select tags to apply filter"/>
-                <div class="input-group-btn"> 
+                <div class="input-group-btn input-group-lg"> 
                     <button id="btnFilterTag" state="Off" class="btn btn-secondary" type="button"><i id="iconfilter" class="glyphicon glyphicon-filter"></i> Filter</button>
                 </div>
             </div>

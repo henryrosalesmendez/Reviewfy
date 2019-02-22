@@ -214,3 +214,16 @@ ul.tabs li.current{
         margin-left: auto !important;
     }
 }
+
+
+.red_color {
+    color : red;
+}
+
+.blue_color{
+    color : #5DBCD2;
+}
+
+.group_button {
+    height : 32px!important;
+}
