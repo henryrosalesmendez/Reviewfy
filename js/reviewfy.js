@@ -163,7 +163,6 @@ $(document).ready(function() {
     })
     
     clearFilter = function(){      
-        
         $("#btnFilterTagClear").addClass("hide");
         $("#iconfilter").removeClass("blue_color");
         
@@ -941,6 +940,7 @@ $(document).ready(function() {
     $(document).on('click', '.btnSearch', function () {
         var idd = $(this).attr("idd");
         activeDoc = idd;
+        pageActive = 1;
         
         //show_with_filter();
         clearFilter();
@@ -1097,6 +1097,13 @@ $(document).ready(function() {
                 }
             }
             
+            // paginator 
+            if (isIncludedInCurrentPage(pos) == false){
+                pos = pos + 1; 
+                continue;                
+            }
+            
+            
             // selecting tag
             var sel=["","","",""];
             sel[pub["meta:tags"]] = 'selected="selected"';
@@ -1165,6 +1172,11 @@ $(document).ready(function() {
                     '</tr>');
             pos = pos +1 ;
         }
+        
+        //
+        generatePaginator(pos);
+        
+        
         //$("#spanDocName").html("("+doc["length"]+") Showing: "+doc["name"]);
         var pos_l = pos-1;
         $("#spanDocName").html("("+pos_l+") Showing: #"+idd+" "+doc["name"]);
@@ -1212,6 +1224,16 @@ $(document).ready(function() {
             l = listTags[i];
             filterList.push(l["text"]);
         }
+        
+        if (pageTemp == -1){
+            pageTemp = pageActive;
+            pageActive = 1;
+        }
+        else {
+            pageActive = 1;
+        }
+        
+        
         showContent();
         
         $("#btnFilterTagClear").removeClass("hide");
@@ -2426,6 +2448,7 @@ $(document).ready(function() {
     
     //--
     clearFilterText = function(){
+
         $("#btnFilterClear").addClass("hide");
         $("#iconTextFilter").removeClass("blue_color");  
         
@@ -2434,6 +2457,11 @@ $(document).ready(function() {
                 delete D[activeDoc]["content"][pi]["meta:filter"];
             }
         }
+        
+        //$("#textFilter").val("");
+        //column_filtered = "";
+
+        //restorePageActive();
     }
     
     
@@ -2463,6 +2491,15 @@ $(document).ready(function() {
             column_filtered = "";
         }
         
+        //--
+        if (pageTemp == -1){
+            pageTemp = pageActive;
+            pageActive = 1;
+        }
+        else {
+            pageActive = 1;
+        }
+        //
         showContent();        
     });
     
@@ -2721,12 +2758,14 @@ $(document).ready(function() {
         $("#textFilter").val("");
         column_filtered = "";
         
+        restorePageActive();
         showContent();
     });
     
     
     $("#btnFilterTagClear").click(function(){
         clearFilter();
+        restorePageActive();
         showContent();
     });
     
@@ -2765,6 +2804,126 @@ $(document).ready(function() {
         $("#newOptionFilterSelect").before('<option id="optFilt'+copt+'" value="'+txt+'">'+txt+'</option>'); 
         $("#selectFilterText").val(txt).change();
     }
+    
+    
+    //=====================================
+    //---- Pagination
+    pageActive = 1;
+    pageTemp = -1; // used as an auxiliar variable to store the current page when we need to display a filter
+    numberItemByPage = 10;
+    
+    isIncludedInCurrentPage = function(p){
+        
+        var ini = (pageActive-1)*numberItemByPage;
+        var fin = pageActive*numberItemByPage;
+        if (ini < p && p <= fin) {
+            return true;
+        }        
+        
+        return false;
+    }
+    
+    
+    //--
+    $(document).on('click', '.page_button', function () {
+        pageActive = parseInt($(this).attr("page"));
+        $(".page_button_selected").removeClass("page_button_selected");
+        $(".page"+pageActive).addClass("page_button_selected");
+        showContent();
+    });
+    
+    
+    //--     
+    needBeIncluded = function(k,cant,numberSelectedItem){
+        if (cant < 5){  // display all numbers
+            return true;
+        }
+        else {
+            if (k == 1 || k == cant || (k>numberSelectedItem-3 && k<numberSelectedItem+3)){
+                return true;
+            }
+            else if (numberSelectedItem<5){  // first five, and the last one
+                if (k<5 || k == cant){
+                    return true;
+                }
+            }
+            else if (numberSelectedItem>cant-5){
+                if (k == 1 || k>cant-5){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    
+    //--
+    generateNumbersOfPages = function(cant,numberSelectedItem){
+        var html_ = "";
+        var npage = parseInt(cant/numberItemByPage);
+        if (cant - (npage*numberItemByPage) > 0 ){
+            npage = npage + 1;
+        }
+        
+        var ant = -1;
+        for (var i=1; i<=npage; i++ ){
+            if (needBeIncluded(i,npage,numberSelectedItem)== false){continue;}
+            if (ant != -1 && ant!= i-1){
+                html_ = html_ +'&nbsp;&nbsp;&nbsp;&nbsp;<i style="top: 10px!important;" class="glyphicon glyphicon-option-horizontal"></i>&nbsp;&nbsp;&nbsp;&nbsp;';
+            }
+            ant = i;
+            if (i == numberSelectedItem){
+                html_ = html_ + '<button type="button" page="'+i+'" class="page'+i+' btn btn-secondary page_button page_button_selected">'+i+'</button>';
+            }
+            else{
+                html_ = html_ + '<button type="button" page="'+i+'" class="page'+i+' btn btn-secondary page_button">'+i+'</button>';
+            }
+        }
+        
+        return html_;
+    }
+    
+    //
+    generatePaginator = function(cant){
+        var htmlPag = generateNumbersOfPages(cant, pageActive);
+        $(".divPagination").html(htmlPag);
+    }
+    
+    //
+    
+    restorePageActive = function(){
+        if (pageTemp != -1){
+            if (filterList.length == 0 && column_filtered == ""){
+                pageActive = pageTemp;
+                pageTemp = -1;
+            }        
+            
+        }        
+    }
+    
+    //
+    $("select#selectRangePage").change(function(){
+        var val = $(this).children(":selected").val();
+        if (val != undefined){
+            val = parseInt(val);
+            if (val == 0){
+                val = 10000000;
+            }
+            
+            pageActive = 1;
+            numberItemByPage = val;
+            
+            showContent();
+        }
+    });
+    
+    
+    ///--- Go top
+    
+    $("#btnGoTop").click(function(){
+        $("html, body").animate({scrollTop: 500}, 2000);
+    });
+    
 });
 
 

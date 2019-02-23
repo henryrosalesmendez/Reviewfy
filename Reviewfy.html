@@ -48,7 +48,7 @@
        </div>
     </nav>
     
-   <!-------------   Single-Document Annotation ----------->
+   <!-------------   Dump Tab ----------->
    <div id="doc" class="tab-content current">
     <div class="row padd1">
         <div class="col-lg-12">
@@ -138,12 +138,61 @@
                 </div>
             </div>
         </div>
+        
+        <!-- begin paginator top-->
+        <div class="col-lg-12 divContent hide">
+            <div class='bothside'>
+                <div class="divPagination" style='float: left;'>
+                    <!--
+                    <button type="button" page="1" class="page1 btn btn-secondary page_button page_button_selected">1</button>
+                    <button type="button" page="2" class="page2 btn btn-secondary page_button">2</button>
+                    <button type="button" page="3" class="page3 btn btn-secondary page_button">3</button>
+                    <button type="button" page="4" class="page4 btn btn-secondary page_button">4</button>
+                    <button type="button" page="5" class="page5 btn btn-secondary page_button">5</button>
+                    -->
+                </div>
+                <div style='float: right;'>
+                    <select id="selectRangePage" class="float-right" style="min-height: 30px;line-height: 1.42857143;height: 32px !important;">
+                        <option selected="selected" value="10">10 pages</option>
+                        <option value="25">25 pages</option>
+                        <option value="50">50 pages</option>
+                        <option value="100">100 pages</option>
+                        <option value="0">--none--</option>
+                    </select>
+                
+                </div>
+            </div>
+        </div>
+        <!-- end paginator top-->
+        
         <div class="col-lg-12 divContent   divContent_without_filter"> <!--hide-->
             <div>
                 <table id="content_table" class="table table-striped" style="border: 4px solid #AAAAAA!important;">
                 </table>
             </div>
         </div>
+        
+        
+        <!-- begin paginator button-->
+        <div class="col-lg-12 divContent hide" style="margin-top: -15!important;">
+            <div class='bothside'>
+                <div class="divPagination" style='float: left;'>
+                    <!--
+                    <button type="button" page="1" class="page1 btn btn-secondary page_button page_button_selected">1</button>
+                    <button type="button" page="2" class="page2 btn btn-secondary page_button">2</button>
+                    <button type="button" page="3" class="page3 btn btn-secondary page_button">3</button>
+                    <button type="button" page="4" class="page4 btn btn-secondary page_button">4</button>
+                    <button type="button" page="5" class="page5 btn btn-secondary page_button">5</button>
+                    -->
+                </div>
+                <div style='float: right;'>
+                    <button id="btnGoTop" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Go to the top of page"><i class="glyphicon glyphicon-triangle-top"></i></button>
+                
+                </div>
+            </div>
+        </div>
+        <!-- end paginator button-->
+        
     </div>
    </div>
     <br>
