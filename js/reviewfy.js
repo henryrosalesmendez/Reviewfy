@@ -1682,7 +1682,7 @@ $(document).ready(function() {
     
     //see https://davidwalsh.name/convert-xml-json
     parseEnvInput = function(){
-        D = {};
+        //D = {};
         var text = undefined;
         if (textFromUpload == undefined){
             text = $("#inDoc").val();
@@ -1792,7 +1792,19 @@ $(document).ready(function() {
                 }
             } 
             //console.log(newDoc);
-            D[newDoc["id"]] = newDoc;
+            
+            var _nid = newDoc["id"];
+            if (_nid in D){
+                var max_id = 0;
+                for (_nnd in D){
+                    if (parseInt(_nnd) > max_id){
+                        max_id = parseInt(_nnd);
+                    }
+                }
+                _nid = max_id +1;
+            }
+            
+            D[_nid] = newDoc;
         }
         updateMainTable();
     }
