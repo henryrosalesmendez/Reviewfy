@@ -1015,8 +1015,31 @@ $(document).ready(function() {
     
     // I'm including the the comparison  as document, but I just store the references to the publication to avoid duplicity and save space in memory.
     // So, some documents going to have real, and other references data. Here I unify the access to this publication
+    
+    _cast = function(_p){
+        var pub_ = _p;
+        var _iddoc = -1;
+        var _idp = -1;
+        var _index = -1;
+        
+        while ("meta:ref_idd" in pub_){
+            _iddoc = pub_["meta:ref_idd"];
+            _idp = pub_["meta:ref_idp"];
+            _index  = idpub2index(_iddoc,_idp);
+            if (_index == -1){
+                return false;
+            }
+            pub_ = D[_iddoc]["content"][_index];
+        }
+        
+        if (_iddoc == -1){
+            return false;
+        }
+        return [_iddoc,_index];
+    }
+    
     CAST = function(_pub){
-        if ("meta:ref_idd" in _pub){
+        /*if ("meta:ref_idd" in _pub){
             var _iddoc = _pub["meta:ref_idd"];
             var _idp = _pub["meta:ref_idp"];
             var _index  = idpub2index(_iddoc,_idp);
@@ -1025,12 +1048,17 @@ $(document).ready(function() {
             }
             return D[_iddoc]["content"][_index];
         }
+        return _pub;*/
+        var _in = _cast(_pub);
+        if (_in != false){
+            return D[_in[0]]["content"][_in[1]];
+        }
         return _pub;
     }
     
     CAST_idd_index = function(idd,index){
         var __pub = D[idd]["content"][index];
-        if ("meta:ref_idd" in __pub){
+        /*if ("meta:ref_idd" in __pub){
             var _iddoc = _pub["meta:ref_idd"];
             var _idp = _pub["meta:ref_idp"];
             var _index  = idpub2index(_iddoc,_idp);
@@ -1038,7 +1066,12 @@ $(document).ready(function() {
                 return [_idp,_index];
             }
         }
-        return [idd,index];
+        return [idd,index];*/
+        var _in = _cast(__pub);
+        if (_in != false){
+            return _in;
+        }
+        return __pub;
     }
     
     
@@ -1443,49 +1476,7 @@ $(document).ready(function() {
         
         var other_str = list_of_other.join(",");
         
-        
-        /*
-        var doc = operation_doc(type,list_of_other);
-        var pos = 1;
-        for (i in doc){
-            var pub = doc[i];
-            
-            // selecting tag
-            var sel=["","","",""];
-            sel[pub["meta:tags"]] = 'selected="selected"';
-            
-            // contructing table
-            var item = '<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
-                        '<td>'+pos+'</td>'+
-                        '<td>'+pub["meta:iddoc"]+'</td>'+
-                        '<td>'+pub["id"]+'</td>'+
-                        '<td>'+pub["year"]+'</td>'+
-                        '<td>'+pub["title"]+'</td>'+
-                        '<td>'+pub["author"]+'</td>'+
-                        '<td>'+
-                            '<select class="trSelectChange" idd="'+pub["meta:iddoc"]+'" idc="'+pub["id"]+'">'+
-                                    '<option '+sel[0]+' value="0">-</option>'+
-                                    '<option '+sel[1]+'value="1">include</option>'+
-                                    '<option '+sel[2]+'value="2">exclude</option>'+
-                                    '<option '+sel[3]+'value="3">maybe</option>'+
-                            '</select>'+
-                        '<td>'+
-                        '</td>'+
-                        '<td>-</td>'+
-                    '</tr>';
-            $("#content_table").append(item);
-            pos = pos +1 ;
-        }
-        
-        pos = pos - 1;
-        $("#spanDocName").html("("+pos+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str);
-        apply_on_change_to_selects();
-        show_with_out_filter();
-        */
-        
-        
-        var doc = operation_doc(type,list_of_other);
-        //{1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}, "length":50, "description":"ABABAB", "content":["id"]} };        
+        var doc = operation_doc(type,list_of_other);      
 
         var num_cmp = countNum("CMP");
         newDoc = {"fileName":"-", "type":"CMP", "name":"Comparison #"+num_cmp,"searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":doc.length, "description":"", "content":[]};
@@ -1493,13 +1484,16 @@ $(document).ready(function() {
         newDoc["dateUpload"]= new Date().toLocaleDateString();
         newDoc["description"] = "("+doc.length+") Comparison "+type+"| source:"+targetDoc+"  |against:"+other_str;
         
+        
         for (o in doc){
             var pub = doc[o];
             newDoc["content"].push({
+                "id":o,
                 "meta:ref_idd":pub["meta:iddoc"],
                 "meta:ref_idp":pub["id"]                
             });
         }
+        
         
         var Akey = Object.keys(D);
         var newidDoc = 1;
@@ -1507,7 +1501,8 @@ $(document).ready(function() {
             newidDoc = parseInt(Akey[Akey.length-1])+1;
         }
         
-        console.log(["newidDoc:",newidDoc]);
+        
+        //console.log(["newidDoc:",newidDoc]);
         D[newidDoc] = newDoc;
         activeDoc = newidDoc;
         
@@ -2133,6 +2128,7 @@ $(document).ready(function() {
                             var _idp = _p["meta:ref_idp"];
                             var _ind  = idpub2index(_iddoc,_idp);
                             D[tt]["content"][ll] = D[_idd]["content"][_ind];
+                            D[tt]["content"][ll]["meta:iddoc"] = tt;
                         }
                         
                     }
@@ -2159,6 +2155,7 @@ $(document).ready(function() {
                             var _idp = _p["meta:ref_idp"];
                             var _ind  = idpub2index(_iddoc,_idp);
                             D[tt]["content"][ll] = D[_idd]["content"][_ind];
+                            D[tt]["content"][ll]["meta:iddoc"] = tt;
                         }
                         
                     }
@@ -2934,6 +2931,48 @@ $(document).ready(function() {
     
     $("#btnGoTop").click(function(){
         $("html, body").animate({scrollTop: 500}, 2000);
+    });
+    
+    
+    /// ---  Extra Functions
+    
+    fix_iddocs = function(){
+        for (iddoc in D){
+            var d = D[iddoc];
+            for (idp in d["content"]){
+                var pub = d["content"][idp];
+                d["content"][idp]["meta:iddoc"] = iddoc;
+            }
+        }
+    }
+    
+    
+    $("#btnRemovePointInTitle").click(function(){
+        BootstrapDialog.show({
+            title: 'Removing period in titles',
+            message: "Are you shure? This operation can't undone.",
+            buttons: [{
+                label: 'No',
+                action: function(dialog) {
+                    dialog.close();
+                }
+            },{
+                label: 'Yes',
+                cssClass: 'btn-primary',
+                hotkey: 13, // Enter.
+                action: function(dialog) {
+                    
+                    for (idpub in D[activeDoc]["content"]){
+                        pub = CAST(D[activeDoc]["content"][idpub]);
+                        if (pub["title"][pub["title"].length-1] == "."){
+                            pub["title"] = pub["title"].substring(0,pub["title"].length-1)
+                        }
+                    }
+                    showContent();                    
+                    dialog.close();
+                }
+            }]
+        });
     });
     
 });
