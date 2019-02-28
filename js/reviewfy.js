@@ -309,6 +309,7 @@ $(document).ready(function() {
                 }
                 
             }
+            fix_iddocs();
         }
         fr.readAsText(file);
     }
