@@ -306,8 +306,7 @@ $(document).ready(function() {
                 }
                 else{
                     parseTextInputBibTex();
-                }
-                
+                }                
             }
             fix_iddocs();
         }
