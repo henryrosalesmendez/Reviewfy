@@ -1344,7 +1344,9 @@ $(document).ready(function() {
         console.log(attr);
         
         // contructing super set of others
+        var __len = 0;
         var So = new Set();
+        var DD = {};
         if (type != "1*-1*"){
             //console.log("here");
             for (x in list_of_other){
@@ -1352,7 +1354,17 @@ $(document).ready(function() {
                 for (y in xdoc["content"]){
                     ypub = CAST(xdoc["content"][y]);
                     if (ypub[attr] != ""){
-                        So.add(ypub[attr]);                        
+                        So.add(ypub[attr]);
+                        DD[ypub[attr]] = ypub;
+                        //console.log(ypub[attr]);
+                        /*var aSo = Array.from(So);
+                        var nn = aSo.length;
+                        
+                        if (nn == __len){
+                            //console.log(["===>",ypub]);
+                            console.log([So.length,__len]);
+                        }
+                        __len = nn;*/
                     }
                 }
             }            
@@ -1414,9 +1426,45 @@ $(document).ready(function() {
             for (y in arrSo){
                 yid = arrSo[y];
                 if (S.has(yid) == false){
-                    IDs.push(ypub);
+                    //IDs.push(ypub);
+                    var fpub = DD[yid];
+                    IDs.push(fpub);
                 }
             } 
+        }
+        
+        else if (type == "0-0"){
+            var S = new Set();
+            var already = new Set();
+            var nm = 0;
+            for (y in doc["content"]){
+                ypub = CAST(doc["content"][y]);
+                if (ypub[attr]!=""){
+                    IDs.push(ypub); 
+                    already.add(ypub[attr]);
+                    nm = nm +1;
+                }
+                else{
+                    //console.log("empty -->"+ypub[attr]);
+                }
+            }
+            //console.log(nm);
+
+            var arrSo = Array.from(So);
+            //console.log(["arrSo:",arrSo.length]);
+            var nm = 0;
+            for (y in arrSo){
+                yid = arrSo[y];
+                var fpub = DD[yid];
+                if (fpub!= undefined && already.has(yid) == false ){
+                    IDs.push(fpub);
+                    nm = nm +1;
+                }
+                else{
+                    //console.log("empty -->"+yid[attr]);
+                }
+            } 
+            //console.log(nm);
         }
 
         return IDs;
@@ -1528,6 +1576,10 @@ $(document).ready(function() {
     
     $("#modalDifference_0_1").click(function(){
         relationCalculation("0-1");
+    });
+    
+    $("#modalDifference_0_0").click(function(){
+        relationCalculation("0-0");
     });
     
     $("#modalDifference_1_1_").click(function(){
