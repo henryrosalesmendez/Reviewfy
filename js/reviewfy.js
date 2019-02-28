@@ -257,6 +257,8 @@ $(document).ready(function() {
            
            actions = actions + '<button class="btn btn-secondary btnDifference" type="button" idd="'+i+'" data-toggle="tooltip" title="Difference with respect others dumps"><i class="glyphicon glyphicon-transfer"></i></button>';
            
+           actions = actions + '<button class="btn btn-secondary btnRepetedPub" type="button" idd="'+i+'" data-toggle="tooltip" title="Searching for duplicates"><i class="glyphicon glyphicon-sunglasses"></i></button>';
+           
            if (d["type"] != "SCD"){
                 actions = actions + '<button class="btn btn-secondary btnDownloadAbstract" type="button" idd="'+i+'" data-toggle="tooltip" title="Get the abstract from the publisher"><i class="glyphicon glyphicon-import"></i></button>';
            }
@@ -1444,14 +1446,9 @@ $(document).ready(function() {
                     already.add(ypub[attr]);
                     nm = nm +1;
                 }
-                else{
-                    //console.log("empty -->"+ypub[attr]);
-                }
             }
-            //console.log(nm);
 
             var arrSo = Array.from(So);
-            //console.log(["arrSo:",arrSo.length]);
             var nm = 0;
             for (y in arrSo){
                 yid = arrSo[y];
@@ -1460,11 +1457,7 @@ $(document).ready(function() {
                     IDs.push(fpub);
                     nm = nm +1;
                 }
-                else{
-                    //console.log("empty -->"+yid[attr]);
-                }
             } 
-            //console.log(nm);
         }
 
         return IDs;
@@ -3026,6 +3019,78 @@ $(document).ready(function() {
             }]
         });
     });
+    
+    
+    
+    //---
+    ListRep = [];
+    $(document).on('click', '.btnRepetedPub', function () {
+
+        ListRep = [];
+        var rep = "";
+        var S = new Set();
+        var idd = $(this).attr("idd");
+
+        for (i in D[idd]["content"]){
+            var pub = CAST(D[idd]["content"][i]);
+            
+            if (pub["title"]!=undefined  &&  pub["year"]!=undefined){
+                var fi = pub["title"]+pub["year"];
+                if (S.has(fi)==false){
+                    S.add(fi);
+                }
+                else{
+                    console.log(fi);
+                    ListRep.push(i);
+                    rep = rep + "<p>"+D[idd]["content"][i]["title"]+"</p>";
+                }
+                
+            }
+            
+        }
+        
+        if (rep == ""){
+            BootstrapDialog.alert("There is no repetitions");
+        }
+        else{
+            BootstrapDialog.show({
+                title: 'Repeted publications. Do you want delete repetitions?',
+                message: '<div>'+rep+'</div>',
+                buttons: [{
+                    label: 'No',
+                    action: function(dialog) {
+                        dialog.close();
+                    }
+                },{
+                    label: 'Yes',
+                    cssClass: 'btn-primary',
+                    hotkey: 13, // Enter.
+                    action: function(dialog) {
+                        
+                        var cant = 0;
+                        for (i_ in ListRep){
+                            var index = ListRep[i_];
+                            
+                            deleting_referencing_pub(idd,index-cant);
+                            
+                            D[idd]["content"].splice(index-cant, 1);
+                            D[idd]["length"] = parseInt(D[idd]["length"]) -1; 
+                            
+                            cant = cant + 1;
+                        }
+                        
+                        
+                        showContent();                    
+                        dialog.close();
+                    }
+                }]
+            });
+        }
+        
+        
+        
+    });
+    
     
 });
 
