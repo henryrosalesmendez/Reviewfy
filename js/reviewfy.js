@@ -2002,6 +2002,16 @@ $(document).ready(function() {
         if (current_comment!=undefined && current_comment.length >0){
            D[idd]["content"][_index]["meta:comment"] = current_comment;
         }
+        
+        //--
+        var fText = $("#textFilter").val();
+        var fField = $("#selectFilterText").val();
+        column_filtered = fField.split("@")[1];
+        if (fText!=undefined && fText!="" && column_filtered=="meta:comment"){
+            $("#btnFilterText").trigger("click");
+        }
+        //--
+        
         showContent();
     });
     
