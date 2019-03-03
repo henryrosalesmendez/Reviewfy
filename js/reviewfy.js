@@ -2004,13 +2004,12 @@ $(document).ready(function() {
         }
         
         //--
-        var fText = $("#textFilter").val();
-        var fField = $("#selectFilterText").val();
-        column_filtered = fField.split("@")[1];
-        if (fText!=undefined && fText!="" && column_filtered=="meta:comment"){
+        var fText_ = $("#textFilter").val();
+        var fField_ = $("#selectFilterText").val();
+        if (fText_!=undefined && fText_!="" && column_filtered=="meta:comment"){
             for (pi in D[activeDoc]["content"]){
                 var p = CAST(D[activeDoc]["content"][pi]);
-                var res = fullfill_filter(fField, fText, p);
+                var res = fullfill_filter(fField_, fText_, p);
                 if (res!=-1){    
                     D[activeDoc]["content"][pi]["meta:filter"] = res;
                 }
