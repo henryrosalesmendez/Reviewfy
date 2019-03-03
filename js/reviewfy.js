@@ -2008,7 +2008,13 @@ $(document).ready(function() {
         var fField = $("#selectFilterText").val();
         column_filtered = fField.split("@")[1];
         if (fText!=undefined && fText!="" && column_filtered=="meta:comment"){
-            $("#btnFilterText").trigger("click");
+            for (pi in D[activeDoc]["content"]){
+                var p = CAST(D[activeDoc]["content"][pi]);
+                var res = fullfill_filter(fField, fText, p);
+                if (res!=-1){    
+                    D[activeDoc]["content"][pi]["meta:filter"] = res;
+                }
+            }
         }
         //--
         
