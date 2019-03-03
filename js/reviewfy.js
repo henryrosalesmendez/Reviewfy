@@ -3049,15 +3049,15 @@ $(document).ready(function() {
         for (i in D[idd]["content"]){
             var pub = CAST(D[idd]["content"][i]);
             
-            if (pub["title"]!=undefined  &&  pub["year"]!=undefined){
-                var fi = pub["title"]+pub["year"];
+            if (pub["title"]!=undefined ){
+                var fi = pub["title"];
                 if (S.has(fi)==false){
                     S.add(fi);
                 }
                 else{
                     console.log(fi);
                     ListRep.push(i);
-                    rep = rep + "<p>"+D[idd]["content"][i]["title"]+"</p>";
+                    rep = rep + "<p>"+pub["title"]+"</p>";
                 }
                 
             }
