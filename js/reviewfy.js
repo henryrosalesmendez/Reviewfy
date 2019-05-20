@@ -64,6 +64,22 @@ $(document).ready(function() {
                     8:"url",
                     9:"type",
                     100:"id"
+               },
+               "Scopus":{
+                    2:"year",
+                    4:"author",
+                    8:"type", 
+                    12:"booktitle",
+                    0:"title",
+                    
+                    3:"volume",
+                    4:"issue_no",
+                    5:"doi",
+                    
+                    
+                    8:"url",
+                    9:"type",
+                    100:"id"
                }
       };
     //In order to unify the input of the csv
@@ -150,6 +166,7 @@ $(document).ready(function() {
     type2bibtexchr = {
         "ACM":{"start":'{', "end":'}'},
         "SCD":{"start":'"', "end":'"'},
+        "Scopus":{"start":'{', "end":'}'},
     };
     
     $('ul.tabs li').click(function(){
@@ -222,6 +239,7 @@ $(document).ready(function() {
        "Springer": "info",
        "CMP": "default",
        "SLR": "danger",
+       "Scopus": "danger",
        "Filter": "default"
    };
    
@@ -863,6 +881,13 @@ $(document).ready(function() {
     $("#btn_upload_Springer").click(function(){
         typeFile = "CSV";
         newDoc = {"fileName":"-", "type":"Springer", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
+        typeInput = "dump";
+        $("#modalUpload").modal("show");
+    });
+    
+    $("#btn_upload_Scopus").click(function(){
+        typeFile = "BibTex";
+        newDoc = {"fileName":"-", "type":"Scopus", "name":"-","searchQuery":"-", "dateUpload":"-", "timeUpload":"-", "repited":{}, "typePubl":{}, "length":0, "description":"-", "content":[]};
         typeInput = "dump";
         $("#modalUpload").modal("show");
     });
@@ -2124,6 +2149,18 @@ $(document).ready(function() {
                     
                     newPub["meta:tags"] = 0; // etiqueta por las que se filtra
                     newPub["meta:iddoc"] = newidDoc;
+                    if ("journal" in newPub){
+                        if (!("meta:comment" in newPub)){
+                            newPub["meta:comment"]  = "";
+                        }
+                        newPub["meta:comment"] = newPub["meta:comment"] + "<br>journal:" + newPub["journal"];
+                    }
+                    if ("publisher" in newPub){
+                        if (!("meta:comment" in newPub)){
+                            newPub["meta:comment"]  = "";
+                        }
+                        newPub["meta:comment"] = newPub["meta:comment"] + "<br>publisher:" + newPub["publisher"];
+                    }
                     newDoc["content"].push(newPub);
                     globalValue = "";
                     cant = cant + 1;
