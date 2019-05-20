@@ -1348,12 +1348,11 @@ $(document).ready(function() {
     
     
     
-    createSetbyDoc = function(idd){
+    createSetbyDoc = function(idd, attr){
         var S = new Set();
-        console.log(["idd:",idd]);
         for (v in D[idd]["content"]){
             var pub = D[idd]["content"][v];
-            S.add(pub["id"]);
+            S.add(getAllValuesOfAttrs(pub,attr));
         }
         return S;
     }
@@ -1364,34 +1363,57 @@ $(document).ready(function() {
     }
     
     
+    
+    // This return "true" if the article _pub_ has any value in the attributes of LAttr
+    hasAllValuesOfAttrs = function(_pub_, LAttr){
+        for (__l_i in LAttr){
+            var __l = LAttr[__l_i];
+            if (!(__l in _pub_)){
+                return false;
+            } 
+            else if (_pub_[__l]==undefined || _pub_[__l]==""){
+                return false;
+            }
+        }        
+        return true;
+    }
+    
+    
+    // This return an object of the article _pub_ only with the keys from LAttr
+    getAllValuesOfAttrs = function(_pub_, LAttr){
+        //var Ob_ = {}
+        var Ob_ = "";
+        for (__l_i in LAttr){
+            var __l = LAttr[__l_i];
+            if (__l in _pub_){
+                //Ob_[__l] = _pub_[__l];
+                Ob_ = Ob_ + "###" + _pub_[__l];
+            }
+            else{
+                console.log("[WARNING] This shoudn't be happening");
+            }
+        }        
+        return Ob_;
+    }
+    
+    
     // This return a copy of the publications, each of them has a identifier of the corresponding document
     operation_doc = function(type, list_of_other){
         var doc = D[targetDoc];
-        var attr = $("#selectModalDiff").val();
-        console.log(attr);
+        var attr = $("#selectModalDiff").val().split(",");
         
-        // contructing super set of others
+        // constructing super set of others
         var __len = 0;
         var So = new Set();
         var DD = {};
         if (type != "1*-1*"){
-            //console.log("here");
             for (x in list_of_other){
                 xdoc = D[list_of_other[x]];
                 for (y in xdoc["content"]){
                     ypub = CAST(xdoc["content"][y]);
-                    if (ypub[attr] != ""){
-                        So.add(ypub[attr]);
-                        DD[ypub[attr]] = ypub;
-                        //console.log(ypub[attr]);
-                        /*var aSo = Array.from(So);
-                        var nn = aSo.length;
-                        
-                        if (nn == __len){
-                            //console.log(["===>",ypub]);
-                            console.log([So.length,__len]);
-                        }
-                        __len = nn;*/
+                    if (hasAllValuesOfAttrs(ypub,attr)){
+                        So.add(getAllValuesOfAttrs(ypub,attr));
+                        DD[getAllValuesOfAttrs(ypub,attr)] = ypub;
                     }
                 }
             }            
@@ -1400,9 +1422,15 @@ $(document).ready(function() {
         
         IDs = []
         if (type == "1-0"){
+            //console.log("---------");
+            //console.log(So);
             for (y in doc["content"]){
                 ypub = CAST(doc["content"][y]);
-                if (ypub[attr]!="" && So.has(ypub[attr]) == false){
+                //console.log("===");
+                //console.log(["hasAllValuesOfAttrs(ypub,attr):",hasAllValuesOfAttrs(ypub,attr)]);
+                //console.log(["So.has(getAllValuesOfAttrs(ypub,attr)):",So.has(getAllValuesOfAttrs(ypub,attr))]);
+                //console.log(["getAllValuesOfAttrs(ypub,attr):",getAllValuesOfAttrs(ypub,attr)]);
+                if (hasAllValuesOfAttrs(ypub,attr) && So.has(getAllValuesOfAttrs(ypub,attr)) == false){
                     IDs.push(ypub);
                 }
             }
@@ -1410,32 +1438,29 @@ $(document).ready(function() {
         else if (type == "1-1"){  // intersection of the target with the union of the others
            for (y in doc["content"]){
                 ypub = CAST(doc["content"][y]);
-                if (ypub[attr]!="" && So.has(ypub[attr]) == true){
+                if (hasAllValuesOfAttrs(ypub,attr) && So.has(getAllValuesOfAttrs(ypub,attr)) == true){
                     IDs.push(ypub);
                 }
             } 
         }
         else if (type == "1*-1*"){ // this is the intersection of the  dumps separately
-           console.log("here");
-           var S_target = createSetbyDoc(targetDoc);           
+           var S_target = createSetbyDoc(targetDoc, attr);           
            for (x in list_of_other){
                 var xdoc = list_of_other[x];
-                var s = createSetbyDoc(xdoc);
+                var s = createSetbyDoc(xdoc, attr);
                 S_target = setIntersection(S_target,s);
-                console.log(["iterseccion:",S_target]);
             }   
             
             var already = new Set();
             var L = list_of_other.concat([targetDoc]);
-            console.log(["L:",L]);
+
             for (ix in L){
                 var xdoc = L[ix];
-                console.log(["xdoc:",xdoc]);
                 for (y in D[xdoc]["content"]){
                     ypub = CAST(D[xdoc]["content"][y]);
-                    if (ypub[attr]!="" && S_target.has(ypub[attr]) && !(already.has(ypub[attr]))){
+                    if (hasAllValuesOfAttrs(ypub,attr) && S_target.has(getAllValuesOfAttrs(ypub,attr)) && !(already.has(getAllValuesOfAttrs(ypub,attr)))){
                         IDs.push(ypub);
-                        already.add(ypub[attr]);
+                        already.add(getAllValuesOfAttrs(ypub,attr));
                     }
                 }
             }            
@@ -1444,8 +1469,8 @@ $(document).ready(function() {
             var S = new Set();
             for (y in doc["content"]){
                 ypub = CAST(doc["content"][y]);
-                if (ypub[attr]!=""){
-                    S.add(ypub[attr]);                    
+                if (hasAllValuesOfAttrs(ypub,attr)){
+                    S.add(getAllValuesOfAttrs(ypub,attr));                    
                 }
             }
 
@@ -1466,9 +1491,9 @@ $(document).ready(function() {
             var nm = 0;
             for (y in doc["content"]){
                 ypub = CAST(doc["content"][y]);
-                if (ypub[attr]!=""){
+                if (hasAllValuesOfAttrs(ypub,attr)){
                     IDs.push(ypub); 
-                    already.add(ypub[attr]);
+                    already.add(getAllValuesOfAttrs(ypub,attr));
                     nm = nm +1;
                 }
             }
@@ -2193,10 +2218,29 @@ $(document).ready(function() {
             }
         }
         
+        // searching duplicates
+        Rr = {}
+        for (var _p__i in newDoc["content"]){
+            var _p__ = newDoc["content"][_p__i];
+            var key_ = getAllValuesOfAttrs(_p__,["title","year"]);
+            if (key_ in Rr){
+                Rr[key_] = Rr[key_] + 1;
+                continue; 
+            }
+            else{
+                Rr[key_] = 1;
+            }    
+        }
+        
+        console.log(Rr)
+        
+        
+        
+        //--
         newDoc["fileName"] = tempFileInput;
         newDoc["timeUpload"]= new Date().toLocaleTimeString();
         newDoc["dateUpload"]= new Date().toLocaleDateString();
-        //newDoc["repited"] = invert_counting(Rr);
+        newDoc["repited"] = invert_counting(Rr);
         newDoc["typePubl"] = jQuery.extend({}, Rt);
         newDoc["length"] = cant;
         D[newidDoc] = newDoc;
