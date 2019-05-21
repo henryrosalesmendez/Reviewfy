@@ -2131,7 +2131,7 @@ $(document).ready(function() {
         newDoc["description"] = ddescription;
         newDoc["searchQuery"] = dquery;
         var T = type2bibtexchr[newDoc["type"]];
-        console.log(["T:",T]);
+
         //
         var Rt = {}; // counting by type
         
@@ -2220,6 +2220,7 @@ $(document).ready(function() {
         
         // searching duplicates
         Rr = {}
+        newContent = [];
         for (var _p__i in newDoc["content"]){
             var _p__ = newDoc["content"][_p__i];
             var key_ = getAllValuesOfAttrs(_p__,["title","year"]);
@@ -2229,10 +2230,16 @@ $(document).ready(function() {
             }
             else{
                 Rr[key_] = 1;
+                newContent.push(_p__);
             }    
         }
         
+        newDoc["content"] = [];
+        for (ii in newContent){
+            newDoc["content"].push(newContent[ii]);
+        }
         console.log(Rr)
+        console.log(newContent.length);
         
         
         
@@ -2242,7 +2249,7 @@ $(document).ready(function() {
         newDoc["dateUpload"]= new Date().toLocaleDateString();
         newDoc["repited"] = invert_counting(Rr);
         newDoc["typePubl"] = jQuery.extend({}, Rt);
-        newDoc["length"] = cant;
+        newDoc["length"] = newDoc["content"].length; //cant
         D[newidDoc] = newDoc;
 
        //Update table
