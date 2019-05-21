@@ -64,22 +64,6 @@ $(document).ready(function() {
                     8:"url",
                     9:"type",
                     100:"id"
-               },
-               "Scopus":{
-                    2:"year",
-                    4:"author",
-                    8:"type", 
-                    12:"booktitle",
-                    0:"title",
-                    
-                    3:"volume",
-                    4:"issue_no",
-                    5:"doi",
-                    
-                    
-                    8:"url",
-                    9:"type",
-                    100:"id"
                }
       };
     //In order to unify the input of the csv
@@ -142,19 +126,7 @@ $(document).ready(function() {
                     "conf_loc" : -1,
                     "publisher" : 28,
                     "publisher_loc" : -1               
-           },
-           "Springer":{
-                    "title":0,
-                    "booktitle":1,
-                    "volume":3,
-                    "issue_no":4,
-                    "doi":5,
-                    "author":6,
-                    "year":7,
-                    "url":8,
-                    "type":9,
-                    "id":100
-               }
+           }
       }
     
     // Global because I specify in the clic-time the kind of library: ACM, IEEE, etc
@@ -427,7 +399,6 @@ $(document).ready(function() {
             if (trim_1(l) == ""){continue;}
             if (first){  // first line have the columns names
                 if (l.indexOf(Head[newDoc["type"]]) != -1){
-                    console.log("saltando..");
                     continue; 
                 }
             }
@@ -449,6 +420,7 @@ $(document).ready(function() {
             }
             
             //seeing if it repeated 
+            /*
             if (M["id"] < 100){
                 var pid = trim_1(H[M["id"]]);
                 if (pid in Rr){
@@ -458,7 +430,9 @@ $(document).ready(function() {
                 else{
                     Rr[pid] = 1;
                 }
-            }
+            }*/
+
+        
             
             //
             var newPub = {};  
@@ -469,6 +443,18 @@ $(document).ready(function() {
                     newPub[iM[j]] = h;                    
                 }
             }
+            
+            // is newPub a repetition?
+            var key_ = getAllValuesOfAttrs(newPub,["title","year"]);
+            if (key_ in Rr){
+                Rr[key_] = Rr[key_] + 1;
+                continue; 
+            }
+            else{
+                Rr[key_] = 1;
+            } 
+            
+            
             
             //if there is autonumeric
             if (100 in iM){
