@@ -1762,6 +1762,22 @@ $(document).ready(function() {
     });
     
     
+    //--
+    maxKeyInDict = function(Ob){
+        var Ks = Object.keys(Ob);
+        var mx = 0;
+        for (var _k_i in Ks){
+            var _k = Ks[_k_i];
+            if (parseInt(_k)>mx){
+                mx = parseInt(_k);
+            }
+        }
+        return mx;
+    }
+    
+    
+   
+    
     //see https://davidwalsh.name/convert-xml-json
     parseEnvInput = function(){
         //D = {};
@@ -1780,6 +1796,8 @@ $(document).ready(function() {
         var dumpItem = xmlDoc.getElementsByTagName("dumpItem");
         //console.log(["dumpItem",dumpItem]);
         //console.log(["len:",dumpItem.length]);
+        
+        var max_old = maxKeyInDict(D);
         
         //for (di in dumpItem){
         //for (var di = 0; di < dumpItem.childNodes.length; di++){
@@ -1875,6 +1893,7 @@ $(document).ready(function() {
             } 
             //console.log(newDoc);
             
+            /*
             var _nid = newDoc["id"];
             if (_nid in D){
                 var max_id = 0;
@@ -1884,9 +1903,25 @@ $(document).ready(function() {
                     }
                 }
                 _nid = max_id +1;
-            }
+            }*/
             
+            
+            var _nid = parseInt(max_old) + parseInt(newDoc["id"]);
+            newDoc["id"] = _nid;
+            if (parseInt(max_old)!=0){ 
+                for (p__i in newDoc["content"] ){
+                    var p_ = newDoc["content"][p__i];
+                    if ("meta:iddoc" in p_){
+                        newDoc["content"][p__i]["meta:iddoc"] = parseInt(newDoc["content"][p__i]["meta:iddoc"]) + parseInt(max_old);
+                    }
+                    
+                    if ("meta:ref_idd" in p_){
+                        newDoc["content"][p__i]["meta:ref_idd"] = parseInt(newDoc["content"][p__i]["meta:ref_idd"]) + parseInt(max_old);
+                    }
+                }
+            }
             D[_nid] = newDoc;
+            
         }
         updateMainTable();
     }
