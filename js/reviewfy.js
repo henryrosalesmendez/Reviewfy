@@ -444,6 +444,12 @@ $(document).ready(function() {
                 }
             }
             
+            
+            // removing ginal point
+            if (newPub["title"][newPub["title"].length-1] == "."){
+                newPub["title"] = newPub["title"].substring(0,newPub["title"].length-1)
+            }
+            
             // is newPub a repetition?
             var key_ = getAllValuesOfAttrs(newPub,["title","year"]);
             if (key_ in Rr){
@@ -2172,6 +2178,13 @@ $(document).ready(function() {
                         }
                         newPub["meta:comment"] = newPub["meta:comment"] + "<br>publisher:" + newPub["publisher"];
                     }
+                    
+                    
+                    // removing ginal point
+                    if ("title" in newPub && newPub["title"][newPub["title"].length-1] == "."){
+                        newPub["title"] = newPub["title"].substring(0,newPub["title"].length-1)
+                    }
+                    
                     newDoc["content"].push(newPub);
                     globalValue = "";
                     cant = cant + 1;
