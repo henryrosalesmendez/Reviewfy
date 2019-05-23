@@ -2384,7 +2384,14 @@ $(document).ready(function() {
                 console.log("--> Error: " + json_response["error"]);
             }
             else{
-                D[idd]["content"][_index]["abstract"] = json_response["response"];
+                //D[idd]["content"][_index]["abstract"] = json_response["response"];
+                var _im_ = _cast(D[idd]["content"][_index]["abstract"]);
+                if (_im_ != false){
+                    D[_im_[0]]["content"][_in_[1]]["abstract"] = json_response["response"];
+                }
+                else{
+                    console.log("[Warning] Paper no found idd:"+idd+" _index:"+_index);
+                }
             }
         }
         catch(err) {
@@ -2432,6 +2439,7 @@ $(document).ready(function() {
                     console.log("[Warning] Paper no found");
                 }
                 if (!("abstract" in pub) || (pub["abstract"] == undefined || pub["abstract"] == "")){
+                    console.log(["--> doi:",doi, "typeSource:",typeSource]);
                     $.ajax({
                         //data:params,
                         data:{"values":{
