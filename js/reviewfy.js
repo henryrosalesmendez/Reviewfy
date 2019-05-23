@@ -2380,14 +2380,13 @@ $(document).ready(function() {
         try { 
             var json_response = JSON.parse(trim_1(response));
             if ("error" in json_response){
-                //warning_alert("Error: " + json_response["error"]);
                 console.log("--> Error: " + json_response["error"]);
             }
             else{
                 //D[idd]["content"][_index]["abstract"] = json_response["response"];
-                var _im_ = _cast(D[idd]["content"][_index]["abstract"]);
+                var _im_ = _cast(D[idd]["content"][_index]);
                 if (_im_ != false){
-                    D[_im_[0]]["content"][_in_[1]]["abstract"] = json_response["response"];
+                    D[_im_[0]]["content"][_im_[1]]["abstract"] = json_response["response"];
                 }
                 else{
                     console.log("[Warning] Paper no found idd:"+idd+" _index:"+_index);
@@ -2396,7 +2395,7 @@ $(document).ready(function() {
         }
         catch(err) {
             console.log(["response:",response]);
-            console.log("==> Error Parsing Abstrct: " + err);
+            console.log("[Error Parsing Abstract] " + err);
         }
     }
     
@@ -2439,7 +2438,7 @@ $(document).ready(function() {
                     console.log("[Warning] Paper no found");
                 }
                 if (!("abstract" in pub) || (pub["abstract"] == undefined || pub["abstract"] == "")){
-                    console.log(["--> doi:",doi, "typeSource:",typeSource]);
+                    //console.log(["--> doi:",doi, "typeSource:",typeSource]);
                     $.ajax({
                         //data:params,
                         data:{"values":{
