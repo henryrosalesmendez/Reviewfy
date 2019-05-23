@@ -225,7 +225,7 @@ $(document).ready(function() {
        "SCD": "warning",
        "Springer": "info",
        "CMP": "default",
-       "SLR": "danger",
+       "SLR": "0 YellowDarkLabel",
        "Scopus": "danger",
        "Filter": "default"
    };
@@ -2428,7 +2428,7 @@ $(document).ready(function() {
                         //data:params,
                         data:{"values":{
                             "doi":doi,
-                            "library":D[o_iddoc]["type"]
+                            "library":typeSource
                         }},
                         url: 'gettingabstracts.php',
                         type: 'POST',

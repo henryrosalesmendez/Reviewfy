@@ -240,3 +240,21 @@ ul.tabs li.current{
     background-color : #c7c7c7;
     border-radius: 50%;
 }
+
+
+
+
+.YellowDarkLabel {    
+    background-color: #BDB76B;
+    color: #fff;
+    text-align: center;
+    /*display: inline;
+    padding: .2em .6em .3em;
+    line-height: 1;
+    
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;*/
+
+    cursor:pointer;
+}
