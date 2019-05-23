@@ -2419,10 +2419,18 @@ $(document).ready(function() {
                 typeSource = pub["meta:source"];
             }
 
-            var doi = finalDoi(typeSource, pub);
+            var doi = finalDoi(typeSource, CAST(pub));
             if (doi != ""){
                 update_block_caption('downloading_abstracts',current_index,D[current_iddoc]["content"].length);
-                D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
+                //D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
+                var _in_ = _cast(pub);
+                if (_in_ != false){
+                    D[_in_[0]]["content"][_in_[1]]["meta:final_doi"] = doi;
+                }
+                else{
+                    D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
+                    console.log("[Warning] Paper no found");
+                }
                 if (!("abstract" in pub) || (pub["abstract"] == undefined || pub["abstract"] == "")){
                     $.ajax({
                         //data:params,

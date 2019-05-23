@@ -248,13 +248,13 @@ ul.tabs li.current{
     background-color: #BDB76B;
     color: #fff;
     text-align: center;
-    /*display: inline;
-    padding: .2em .6em .3em;
-    line-height: 1;
-    
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: .25em;*/
-
     cursor:pointer;
 }
+
+.YellowDarkLabel:hover {
+  color: #fff;
+  background-color: #8d883f;
+  /*https://www.w3schools.com/colors/colors_picker.asp*/
+}
+
+
