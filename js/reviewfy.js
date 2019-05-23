@@ -1052,7 +1052,7 @@ $(document).ready(function() {
         }
         
         if (_iddoc == -1){
-            return false;
+            return [_p["meta:iddoc"],idpub2index(_p["meta:iddoc"],_p["id"])]
         }
         return [_iddoc,_index];
     }
