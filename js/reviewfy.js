@@ -3,8 +3,11 @@ $(document).ready(function() {
     D = {}; // Datos de los documentos, ejemplo:
     //D =  {1: {"fileName":"abc.csv", "type":"ACM", "name":"Henry","searchQuery":"..", "dateUpload":"2018-03-02", "timeUpload":"10:30am", "repited":{"1":12, "2":3}, "typePubl":{"articles":2, "procedings":4}, "length":50, "description":"ABABAB", "content":["id"]} };
     // In order tounify the input script, first words of the columns
-    Head = {"ACM":'"type","id","author"'};
-    Head = {"IEEE":'"Document Title",Authors,"Author Affiliations"'};
+    Head = {
+        "ACM":'"type","id","author"',
+        "IEEE":'"Document Title",Authors,"Author Affiliations"',
+        "Springer":'Item Title,Publication'
+    };
     //alowing publications
     Allow = {"ACM":{"article":0}};
     
@@ -126,7 +129,19 @@ $(document).ready(function() {
                     "conf_loc" : -1,
                     "publisher" : 28,
                     "publisher_loc" : -1               
-           }
+           },
+           "Springer":{
+                    "title":0,
+                    "booktitle":1,
+                    "volume":3,
+                    "issue_no":4,
+                    "doi":5,
+                    "author":6,
+                    "year":7,
+                    "url":8,
+                    "type":9,
+                    "id":100
+               }
       }
     
     // Global because I specify in the clic-time the kind of library: ACM, IEEE, etc
@@ -354,6 +369,7 @@ $(document).ready(function() {
     textFromUpload = undefined;
     typeFile = "";
     parseTextInputCSV = function(){
+        //console.log(["newDoc:",newDoc]);
         var text = undefined;
         if (textFromUpload == undefined){
             text = $("#inDoc").val();
@@ -470,6 +486,7 @@ $(document).ready(function() {
             
             newPub["meta:tags"] = 0; // etiqueta por las que se filtra
             newPub["meta:iddoc"] = newidDoc;
+            newPub["meta:source"] = newDoc["type"];
             newDoc["content"].push(newPub);
             /*  NO BORRAR ----
             //find suitable position
@@ -816,6 +833,7 @@ $(document).ready(function() {
                 //
                 newPub["meta:tags"] = 0; // etiqueta por las que se filtra
                 newPub["meta:iddoc"] = newidDoc;
+                newPub["meta:source"] = newDoc["type"];
                 if ("ranking" in newPub){
                     newPub["meta:comment"] = "ranking:" + newPub["ranking"];
                 }
@@ -2011,7 +2029,7 @@ $(document).ready(function() {
         $("#fields_table").html(html_table);
         var idd = $(this).attr("idd");
         var doc = D[idd];
-        console.log(["doc",doc]);
+
         for (i in D[idd]["content"]){
             var pub = D[idd]["content"][i];
             
@@ -2201,6 +2219,7 @@ $(document).ready(function() {
                     
                     newPub["meta:tags"] = 0; // etiqueta por las que se filtra
                     newPub["meta:iddoc"] = newidDoc;
+                    newPub["meta:source"] = newDoc["type"];
                     if ("journal" in newPub){
                         if (!("meta:comment" in newPub)){
                             newPub["meta:comment"]  = "";
@@ -2227,7 +2246,7 @@ $(document).ready(function() {
                 else{  // into the publication data
                     var key = trim_1(textBetween(l,"\n","="));
                     var val = textBetween(l,T["start"],T["end"]);
-                    //console.log(["key:",key,"  val:",val]);
+
                     var l_rest = l.substring(l.indexOf(T["start"])+1,l.length+1);
                     if (l_rest.indexOf(T["end"]) == -1){
                         status = 1;
@@ -2272,9 +2291,7 @@ $(document).ready(function() {
         for (ii in newContent){
             newDoc["content"].push(newContent[ii]);
         }
-        console.log(Rr)
-        console.log(newContent.length);
-        
+       
         
         
         //--
@@ -2397,7 +2414,12 @@ $(document).ready(function() {
             var o_idpub = ccast[1];
             var pub = D[o_iddoc]["content"][o_idpub];
             
-            var doi = finalDoi(D[o_iddoc]["type"], pub);
+            var typeSource = D[o_iddoc]["type"];
+            if ("meta:source" in pub){
+                typeSource = pub["meta:source"];
+            }
+
+            var doi = finalDoi(typeSource, pub);
             if (doi != ""){
                 update_block_caption('downloading_abstracts',current_index,D[current_iddoc]["content"].length);
                 D[o_iddoc]["content"][o_idpub]["meta:final_doi"] = doi;
@@ -3144,12 +3166,19 @@ $(document).ready(function() {
                 hotkey: 13, // Enter.
                 action: function(dialog) {
                     
+                    // this is done since the dump is uploaded
+                    //for (idpub in D[activeDoc]["content"]){
+                    //    pub = CAST(D[activeDoc]["content"][idpub]);
+                    //    if (pub["title"][pub["title"].length-1] == "."){
+                    //        pub["title"] = pub["title"].substring(0,pub["title"].length-1)
+                    //    }
+                    //}
+                    
                     for (idpub in D[activeDoc]["content"]){
                         pub = CAST(D[activeDoc]["content"][idpub]);
-                        if (pub["title"][pub["title"].length-1] == "."){
-                            pub["title"] = pub["title"].substring(0,pub["title"].length-1)
-                        }
+                        pub["meta:source"] = D[activeDoc]["type"];
                     }
+                    
                     showContent();                    
                     dialog.close();
                 }
