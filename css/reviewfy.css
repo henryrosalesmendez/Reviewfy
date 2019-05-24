@@ -258,3 +258,14 @@ ul.tabs li.current{
 }
 
 
+.RosadoLabel {    
+    background-color: #f2dede;
+    text-align: center;
+    cursor:pointer;
+}
+
+.RosadoLabel:hover {
+  background-color: #e2b6b6;
+  /*https://www.w3schools.com/colors/colors_picker.asp*/
+}
+

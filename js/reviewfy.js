@@ -971,6 +971,7 @@ $(document).ready(function() {
     //-- showing content
     tag2color = {'-':"", "exclude":"danger", "include":"success", "maybe":"info"};
     id2color = {"0":"", "1":"info", "2":"danger", "3":"success"};
+    id2tag = {"include":"1", "exclude":"2", "maybe":"3"};
     //id2color = ["danger", "success", "info"];
     
     activeDoc = -1;
@@ -1221,9 +1222,12 @@ $(document).ready(function() {
                 }
             }
             
-
+            var labelSource = "";
+            if ("meta:source" in pub){
+                labelSource = '<span style="line-height: 3;" class="label label-'+type2color[pub["meta:source"]]+'">'+pub["meta:source"]+'</span>'
+            }
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
-                        '<td>'+pos+'</td>'+
+                        '<td>'+pos+' '+labelSource+'</td>'+
                         //'<td>'+pub["id"]+'</td>'+
                         '<td>'+_year+'</td>'+
                         '<td>'+_title+'</td>'+
@@ -1403,7 +1407,7 @@ $(document).ready(function() {
                 console.log("[WARNING] This shoudn't be happening");
             }
         }        
-        return Ob_;
+        return Ob_.toLowerCase();
     }
     
     
@@ -2224,13 +2228,19 @@ $(document).ready(function() {
                         if (!("meta:comment" in newPub)){
                             newPub["meta:comment"]  = "";
                         }
-                        newPub["meta:comment"] = newPub["meta:comment"] + "<br>journal:" + newPub["journal"];
+                        else{
+                            newPub["meta:comment"] = newPub["meta:comment"] + "<br>";
+                        }
+                        newPub["meta:comment"] = newPub["meta:comment"] + "<b>journal</b>: " + newPub["journal"];
                     }
                     if ("publisher" in newPub){
                         if (!("meta:comment" in newPub)){
                             newPub["meta:comment"]  = "";
                         }
-                        newPub["meta:comment"] = newPub["meta:comment"] + "<br>publisher:" + newPub["publisher"];
+                        else{
+                            newPub["meta:comment"] = newPub["meta:comment"] + "<br>";
+                        }
+                        newPub["meta:comment"] = newPub["meta:comment"] + "<b>publisher</b>: " + newPub["publisher"];
                     }
                     
                     
@@ -3240,6 +3250,21 @@ $(document).ready(function() {
                 title: 'Repeted publications. Do you want delete repetitions?',
                 message: '<div>'+rep+'</div>',
                 buttons: [{
+                    label: 'Exclude',
+                    cssClass: 'RosadoLabel',
+                    action: function(dialog) {
+                        for (i_ in ListRep){
+                            var index = ListRep[i_];
+                            D[idd]["content"][index]["meta:tags"] = id2tag["exclude"];
+                        }
+                        
+                        if (activeDoc == idd){
+                            showContent();
+                        }                                            
+                        dialog.close();
+                    }
+                },
+                {
                     label: 'No',
                     action: function(dialog) {
                         dialog.close();
@@ -3263,7 +3288,9 @@ $(document).ready(function() {
                         }
                         
                         
-                        showContent();                    
+                        if (activeDoc == idd){
+                            showContent();
+                        }                      
                         dialog.close();
                     }
                 }]
