@@ -3208,7 +3208,7 @@ $(document).ready(function() {
     $(document).on('click', '.btnRepetedPub', function () {
 
         ListRep = [];
-        var rep = "";
+        var rep = "<ol>";
         var S = new Set();
         var idd = $(this).attr("idd");
 
@@ -3216,19 +3216,21 @@ $(document).ready(function() {
             var pub = CAST(D[idd]["content"][i]);
             
             if (pub["title"]!=undefined ){
-                var fi = pub["title"];
+                var fi = pub["title"].toLowerCase();
                 if (S.has(fi)==false){
                     S.add(fi);
                 }
                 else{
                     console.log(fi);
                     ListRep.push(i);
-                    rep = rep + "<p>"+pub["title"]+"</p>";
+                    rep = rep + "<li>"+pub["title"]+"</li>";
                 }
                 
             }
             
         }
+        
+        var rep = "</ol>";
         
         if (rep == ""){
             BootstrapDialog.alert("There is no repetitions");
