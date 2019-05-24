@@ -3230,7 +3230,7 @@ $(document).ready(function() {
             
         }
         
-        var rep = "</ol>";
+        var rep = rep + "</ol>";
         
         if (rep == ""){
             BootstrapDialog.alert("There is no repetitions");
