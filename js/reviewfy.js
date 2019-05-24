@@ -3255,7 +3255,8 @@ $(document).ready(function() {
                     action: function(dialog) {
                         for (i_ in ListRep){
                             var index = ListRep[i_];
-                            D[idd]["content"][index]["meta:tags"] = id2tag["exclude"];
+                            iN = _cast(D[idd]["content"][index]);
+                            D[iN[0]]["content"][iN[1]]["meta:tags"] = id2tag["exclude"];
                         }
                         
                         if (activeDoc == idd){
