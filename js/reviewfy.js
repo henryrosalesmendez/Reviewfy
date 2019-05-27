@@ -1045,8 +1045,13 @@ $(document).ready(function() {
             
             //updating tag in memory
             var idd = $(this).attr("idd");
-            var pub = getPub(idd,idc);
-            pub["meta:tags"] = $(this).val();
+            var idx = $(this).attr("idx");
+            //var pub = getPub(idd,idc);
+            in_ = _cast(D[idd]["content"][idx]);
+            if (in_ != false){
+                D[in_[0]]["content"][in_[1]]["meta:tags"] = $(this).val();
+            }
+            //pub["meta:tags"] = $(this).val();
         });
     }
     
@@ -1226,6 +1231,7 @@ $(document).ready(function() {
             if ("meta:source" in pub){
                 labelSource = '<span style="line-height: 3;" class="label label-'+type2color[pub["meta:source"]]+'">'+pub["meta:source"]+'</span>'
             }
+            
             $("#content_table").append('<tr class="'+id2color[pub["meta:tags"]]+'" id="tr_cont_'+pub["id"]+'">'+
                         '<td>'+pos+' '+labelSource+'</td>'+
                         //'<td>'+pub["id"]+'</td>'+
@@ -1235,7 +1241,7 @@ $(document).ready(function() {
                         '<td>'+_abstract+'</td>'+
                         '<td>'+_comment+'</td>'+
                         '<td>'+
-                            '<select class="trSelectChange" idd="'+activeDoc+'" idc="'+pub["id"]+'">'+
+                            '<select class="trSelectChange" idd="'+activeDoc+'" idx="'+i+'" idc="'+pub["id"]+'">'+
                                     '<option '+sel[0]+' value="0">-</option>'+
                                     '<option '+sel[1]+' value="1">include</option>'+
                                     '<option '+sel[2]+' value="2">exclude</option>'+
@@ -1654,7 +1660,6 @@ $(document).ready(function() {
         var dumpElem = doc.createElement("dump");
         for (i in D){
             var d = D[i];
-            console.log(d);
             
             var dumpItemElem = doc.createElement("dumpItem");
             dumpItemElem.setAttribute("id", i);
@@ -2773,8 +2778,6 @@ $(document).ready(function() {
         
         var actual_key = $("#detail_edition_k-"+idkey).val();
         var actual_val = $("#detail_edition_v-"+idkey).val();
-        
-        console.log(["actual_key:",actual_key,"  actual_val:",actual_val]);
         
         D[idd]["content"][index][actual_key] = actual_val;
         $("#detail_k-"+idkey).html(actual_key);
