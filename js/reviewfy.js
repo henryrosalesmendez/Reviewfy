@@ -3425,8 +3425,7 @@ $(document).ready(function() {
         
     });
     
-    
-    
+
     $(document).on('click', '.btnRepetedLevenshteinPub', function () {
 
         $("#levenshteinRep_table").empty();
@@ -3461,8 +3460,8 @@ $(document).ready(function() {
                     rep = rep + '<tr id="trLevRep'+i+'" class="trLevRep" idx="'+i+'" idd="'+idd+'">' +
                         //"    <td>"+cant_+' <input type="checkbox" checked="checked"></td>' +
                         "    <td>"+cant_+'</td>' + 
-                        "    <td>"+spanPubYear+" "+pub["title"]+"</td>" + 
                         "    <td>"+spanMPubYear+" "+mpub["title"]+"</td>" + 
+                        "    <td>"+spanPubYear+" "+pub["title"]+"</td>" + 
                         "    <td>"+acc+"</td>" + 
                         "</tr>"
                 }
@@ -3470,7 +3469,7 @@ $(document).ready(function() {
             }
             
         }
-        
+
         var rep = rep + 
                     '</thead>'+
                     '<tbody>'+
