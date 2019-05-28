@@ -264,6 +264,8 @@ $(document).ready(function() {
            
            actions = actions + '<button class="btn btn-secondary btnRepetedPub" type="button" idd="'+i+'" data-toggle="tooltip" title="Searching for duplicates"><i class="glyphicon glyphicon-sunglasses"></i></button>';
            
+           actions = actions + '<button class="btn btn-secondary btnRepetedLevenshteinPub" type="button" idd="'+i+'" data-toggle="tooltip" title="Searching for duplicates"><i class="glyphicon glyphicon-lamp"></i></button>';
+           
            if (d["type"] != "SCD"){
                 actions = actions + '<button class="btn btn-secondary btnDownloadAbstract" type="button" idd="'+i+'" data-toggle="tooltip" title="Get the abstract from the publisher"><i class="glyphicon glyphicon-import"></i></button>';
            }
@@ -1016,6 +1018,17 @@ $(document).ready(function() {
             pub = CAST(doc["content"][i]);
             if (pub["id"] == idc){
                 return pub;
+            }
+        }
+        return undefined;
+    }
+    
+    _getPub = function(idd,idc){
+        var doc = D[idd];
+        for (i in doc["content"]){
+            pub = CAST(doc["content"][i]);
+            if (pub["id"] == idc){
+                return _cast(pub);
             }
         }
         return undefined;
@@ -2528,28 +2541,36 @@ $(document).ready(function() {
     
     ///-- Deleting a publication
     deleting_referencing_pub = function(_idd,_idp){
+        //console.log("<--- deleting_referencing_pub ...");
         for (var tt in D){
             var _d = D[tt];
             if (tt == _idd){
+                //console.log(["=> tt skipped =>",tt]);
                 continue;                
             }
-            
+            //console.log(["=> tt =>",tt]);
+            //console.log(['len _d["content"]:',_d["content"].length]);
             if (_d["type"] == "CMP" || _d["type"] == "Filter"){
                 for (var ll in _d["content"]){
+                    //console.log(["--> ll ->",ll]);
                     var _p = _d["content"][ll];
+                    //console.log(["_p:",_p]);
                     if ("meta:ref_idd" in _p){
                         var _iddoc = _p["meta:ref_idd"];
                         var _idpub = _p["meta:ref_idp"];
-                        if (_iddoc == _idd && _idpub==_idp){
+                        if (_iddoc == _idd && _idpub == _idp){
                             //var _ind  = idpub2index(_iddoc,_idp);
+                            //console.log(["=====> tt:",tt,"  ll:",ll]);
                             D[tt]["content"].splice(ll, 1);
                             D[tt]["length"] = parseInt(D[tt]["length"]) -1;
                         }
                         
                     }
+                    //console.log(":(");
                 }                
-            }
+            } 
         }
+        //console.log("... deleting_referencing_pub -->");
     }
     
     //-
@@ -3287,6 +3308,223 @@ $(document).ready(function() {
                             
                             D[idd]["content"].splice(index-cant, 1);
                             D[idd]["length"] = parseInt(D[idd]["length"]) -1; 
+                            
+                            cant = cant + 1;
+                        }
+                        
+                        
+                        if (activeDoc == idd){
+                            showContent();
+                        }                      
+                        dialog.close();
+                    }
+                }]
+            });
+        }
+        
+        
+        
+    });
+    
+    
+    
+    //---
+    LevenshteinDistance = function(a, b){
+        
+        if(a.length == 0) return b.length; 
+        if(b.length == 0) return a.length; 
+
+        var matrix = [];
+
+        // increment along the first column of each row
+        var i;
+        for(i = 0; i <= b.length; i++){
+            matrix[i] = [i];
+        }
+
+        // increment each column in the first row
+        var j;
+        for(j = 0; j <= a.length; j++){
+            matrix[0][j] = j;
+        }
+
+        // Fill in the rest of the matrix
+        for(i = 1; i <= b.length; i++){
+            for(j = 1; j <= a.length; j++){
+            if(b.charAt(i-1) == a.charAt(j-1)){
+                matrix[i][j] = matrix[i-1][j-1];
+            } else {
+                matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                        Math.min(matrix[i][j-1] + 1, // insertion
+                                                matrix[i-1][j] + 1)); // deletion
+            }
+            }
+        }
+
+        return matrix[b.length][a.length];
+    };
+    
+    
+    // searching publications from doc "idd" similar to "pub" according to the Levenshtein distance
+    searchSimilar = function(_idd_, _beforeIndex_, pub__, alpha){
+        var pub__title = pub__["title"].toLowerCase();
+        for (var __i in D[_idd_]["content"]){
+            if (__i == _beforeIndex_){
+                break;
+            }
+            var __pub = CAST(D[_idd_]["content"][__i]);
+            if (LevenshteinDistance(__pub["title"].toLowerCase(), pub__title) < alpha){
+                return __i;
+            }
+        }
+        
+        return -1;
+    }
+    
+    
+    $(document).on('click', '.btnLevDelete', function () {
+        var idd = $(this).attr("idd");
+        var idx = $(this).attr("idx");
+        var ide = $(this).attr("ide");
+        
+        var _in = _getPub(idd,ide);
+        //console.log(["idd:",idd,"   idx:",idx]);
+        //console.log(["_in[0]:",_in[0],"   _in[1]:",_in[1]]);
+        
+        if (_in != undefined){
+            //console.log(["idd:",idd,"   ide:",ide]);
+            deleting_referencing_pub(_in[0],ide);
+            D[_in[0]]["content"].splice(_in[1], 1);
+            D[_in[0]]["length"] = parseInt(D[_in[0]]["length"]) -1; 
+            
+            $("#trLevRep"+idx).remove();
+            showContent();
+        }
+        else{
+            console.log("[ERROR] For some weir reason I'm here");
+        }
+        
+    });
+    
+    
+    $(document).on('click', '.btnLevExclude', function () {
+        var idd = $(this).attr("idd");
+        var idx = $(this).attr("idx");
+        var ide = $(this).attr("ide");
+        
+        _in__ = _cast(D[idd]["content"][idx]);
+        
+        if (_in__ != undefined){
+            D[_in__[0]]["content"][_in__[1]]["meta:tags"] = id2tag["exclude"];
+
+            showContent();
+        }
+        else{
+            console.log("[ERROR] For some weir reason I'm here");
+        }
+        
+    });
+    
+    
+    
+    $(document).on('click', '.btnRepetedLevenshteinPub', function () {
+
+        $("#levenshteinRep_table").empty();
+        
+        var rep = '<thead>'+
+            '<tr>'+
+                '   <th scope="col"></th>' +
+                '   <th scope="col">Paper</th>'+
+                '   <th scope="col">Match</th>'+
+                '   <th scope="col">-</th>'+
+            '</tr>';
+
+        var idd = $(this).attr("idd");
+
+        var cant_ = 0;
+        ListRep = [];
+        for (i in D[idd]["content"]){
+            var pub = CAST(D[idd]["content"][i]);
+            
+            if (pub["title"]!=undefined ){
+                var mpub_indx = searchSimilar(idd,i,pub,5);
+                if (mpub_indx!=-1){
+                    
+                    mpub = CAST(D[idd]["content"][mpub_indx]);
+                    ListRep.push({"id":pub["id"], "index":i});
+                    cant_ = cant_ + 1;
+                    acc = '<button class="btn btn-danger btnLevDelete" type="button" ide="'+pub["id"]+'" idx="'+i+'" idd="'+idd+'" data-toggle="tooltip" title="Delete this paper"><i class="glyphicon glyphicon-trash"></i></button>';
+                    acc = acc + '<button class="btn RosadoLabel btnLevExclude" type="button" ide="'+pub["id"]+'" idx="'+i+'" idd="'+idd+'" data-toggle="tooltip" title="Exclude This Paper"><i class="glyphicon glyphicon-ban-circle"></i></button>';
+                    
+                    var spanPubYear = '<span class="label label-'+type2color[pub["meta:source"]]+'">'+pub["year"]+'</span>';
+                    var spanMPubYear = '<span class="label label-'+type2color[mpub["meta:source"]]+'">'+mpub["year"]+'</span>';
+                    rep = rep + '<tr id="trLevRep'+i+'" class="trLevRep" idx="'+i+'" idd="'+idd+'">' +
+                        //"    <td>"+cant_+' <input type="checkbox" checked="checked"></td>' +
+                        "    <td>"+cant_+'</td>' + 
+                        "    <td>"+spanPubYear+" "+pub["title"]+"</td>" + 
+                        "    <td>"+spanMPubYear+" "+mpub["title"]+"</td>" + 
+                        "    <td>"+acc+"</td>" + 
+                        "</tr>"
+                }
+                
+            }
+            
+        }
+        
+        var rep = rep + 
+                    '</thead>'+
+                    '<tbody>'+
+                    '</tbody>';
+        
+        var intro = "<p>No matchs found</p>";
+        
+        if (cant_ != 0){
+            intro = "<p>We are showing those publication with a Levenshtein distance lower than 5 between their titles.</p>"
+        }
+        
+        if (rep == ""){
+            BootstrapDialog.alert("There is no repetitions");
+        }
+        else{
+            BootstrapDialog.show({
+                title: 'Repeted publications. Do you want delete repetitions?',
+                message: intro+'<table class="table table-striped">'+rep+'</table>',
+                buttons: [{
+                    label: 'Exclude',
+                    cssClass: 'RosadoLabel',
+                    action: function(dialog) {
+                        for (i_ in ListRep){
+                            var ll = ListRep[i_];
+                            iN = _cast(D[idd]["content"][ll["index"]]);
+                            D[iN[0]]["content"][iN[1]]["meta:tags"] = id2tag["exclude"];
+                        }
+                        
+                        if (activeDoc == idd){
+                            showContent();
+                        }                                            
+                        dialog.close();
+                    }
+                },
+                {
+                    label: 'No',
+                    action: function(dialog) {
+                        dialog.close();
+                    }
+                },{
+                    label: 'Yes',
+                    cssClass: 'btn-primary',
+                    hotkey: 13, // Enter.
+                    action: function(dialog) {
+                        
+                        var cant = 0;
+                        for (i_ in ListRep){
+                            var li = ListRep[i_];
+                            
+                            var indx = parseInt(li["index"])-cant;
+                            var _in_ = _cast(D[idd]["content"][indx]);
+                            deleting_referencing_pub(_in_[0],li["id"]);
+                            D[_in_[0]]["content"].splice(_in_[1], 1);
+                            D[_in_[0]]["length"] = parseInt(D[_in_[0]]["length"]) -1; 
                             
                             cant = cant + 1;
                         }
