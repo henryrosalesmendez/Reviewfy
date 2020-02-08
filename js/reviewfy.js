@@ -971,9 +971,9 @@ $(document).ready(function() {
     
     
     //-- showing content
-    tag2color = {'-':"", "exclude":"danger", "include":"success", "maybe":"info"};
-    id2color = {"0":"", "1":"info", "2":"danger", "3":"success"};
-    id2tag = {"include":"1", "exclude":"2", "maybe":"3"};
+    tag2color = {'-':"", "exclude":"row-exclude", "include":"row-include", "maybe":"row-maybe", "rejected":"row-rejected", "final":"row-final"};
+    id2color = {"0":"", "1":"row-include", "2":"row-exclude", "3":"row-maybe", "4":"row-rejected", "5":"row-final"};
+    id2tag = {"include":"1", "exclude":"2", "maybe":"3", "rejected":"4", "final":"5"};
     //id2color = ["danger", "success", "info"];
     
     activeDoc = -1;
@@ -1259,6 +1259,8 @@ $(document).ready(function() {
                                     '<option '+sel[1]+' value="1">include</option>'+
                                     '<option '+sel[2]+' value="2">exclude</option>'+
                                     '<option '+sel[3]+' value="3">maybe</option>'+
+                                    '<option '+sel[4]+' value="4">rejected</option>'+
+                                    '<option '+sel[5]+' value="5">final</option>'+
                             '</select>'+
                         '</td>'+
                         '<td style="text-align:right">'+actions+'</td>'+
@@ -1285,15 +1287,19 @@ $(document).ready(function() {
     ListTaxonomy = [
         {id: 0, text: '-'},
         {id: 1, text: 'include'},
-		{id: 2, text: 'exclude'},
-		{id: 3, text: 'maybe'},
+        {id: 2, text: 'exclude'},
+        {id: 3, text: 'maybe'},
+        {id: 4, text: 'rejected'},
+        {id: 5, text: 'final'}
     ];
     
     invListTags = {
         '-': 0,
         'include':1,
         'exclude':2,
-        'maybe':3
+        'maybe':3,
+        'rejected':4,
+        'final':5
     }
 
    

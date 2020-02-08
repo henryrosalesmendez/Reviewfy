@@ -269,3 +269,30 @@ ul.tabs li.current{
   /*https://www.w3schools.com/colors/colors_picker.asp*/
 }
 
+
+/*-----------------*/
+
+.row-exclude{
+    background-color: #f2dede!important; /* danger */
+    
+}
+
+
+.row-include{
+    background-color: #d9edf7!important; /* info */
+}
+
+
+.row-maybe{
+    background-color: #fcf8e3!important; /* as warning*/
+    
+}
+
+.row-rejected{
+    background-color: #eccff7!important;  /*violeta*/
+}
+
+
+.row-final{
+    background-color: #dff0d8!important;   /*as success*/
+}
